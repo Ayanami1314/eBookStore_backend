@@ -1,0 +1,1 @@
+INSERT INTO books (title,author, price, isbn,description, sales, cover)VALUES ('title', 'author', 10.00, 'isbn', 'description', 0, 'cover.jpg');

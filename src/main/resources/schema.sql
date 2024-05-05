@@ -1,33 +1,102 @@
-
 # 当运行h2的时候不能建库
-CREATE DATABASE IF NOT EXISTS `ebookStore` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `ebookStore`;
+# DROP DATABASE IF EXISTS `ebookstore`; # 每次重新运行都删库重建，DEBUG only
+# CREATE DATABASE IF NOT EXISTS `ebookstore` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+# USE `ebookstore`;
 #  用mysql的时候取消注释
-
-
-CREATE TABLE books (
-                       id INT AUTO_INCREMENT PRIMARY KEY,
-                       title VARCHAR(255) NOT NULL,
-                       author VARCHAR(255) NOT NULL,
-                       price DECIMAL(10, 2) NOT NULL,
-                       isbn VARCHAR(13) NOT NULL,
-                       description TEXT NOT NULL,
-                       sales INT NOT NULL DEFAULT 0,
-                       cover VARCHAR(255) NOT NULL
+# TODO: 奇怪的现象, springboot里面无法正确执行DROP
+DROP TABLE IF EXISTS `Carts`;
+DROP TABLE IF EXISTS `Orders`;
+DROP TABLE IF EXISTS `OrderItems`;
+DROP TABLE IF EXISTS `UserPublics`;
+DROP TABLE IF EXISTS `UserPrivacys`;
+DROP TABLE IF EXISTS `Books`;
+# 注意外键约束
+#ON UPDATE RESTRICT 如果尝试更新引用的主键值，那么将禁止这个更新操作。换句话说，如果有其他表的外键引用了这个主键，那么不能修改这个主键的值。
+# ON DELETE CASCADE 这个约束表示，如果删除了引用的主键值，那么将删除所有引用该主键的外键记录。换句话说，如果你删除了一个表的记录，那么所有引用这个记录的主键的其他表的记录也将被删除。
+CREATE TABLE IF NOT EXISTS Books
+(
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    title       VARCHAR(255)   NOT NULL,
+    author      VARCHAR(255)   NOT NULL,
+    price       DECIMAL(10, 2) NOT NULL,
+    isbn        VARCHAR(17)    NOT NULL, # 13位isbn 5部分 == 4 '-'
+    description TEXT           NOT NULL,
+    sales       INT            NOT NULL DEFAULT 0,
+    cover       VARCHAR(255)   NOT NULL
 );
-CREATE TABLE users (
-                       id INT AUTO_INCREMENT PRIMARY KEY,
 
-                       email VARCHAR(255) NOT NULL,
-                       role ENUM('admin', 'user') NOT NULL DEFAULT 'user'
+CREATE TABLE IF NOT EXISTS UserPrivacys
+(
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255)           NOT NULL UNIQUE,
+    password VARCHAR(255)           NOT NULL,
+    role     ENUM ('admin', 'user') NOT NULL DEFAULT 'user'
 );
-CREATE TABLE userInfo(
-    userId INT,
-    FOREIGN KEY (userId) REFERENCES users(id),
-    firstName VARCHAR(255) NOT NULL,
-    lastName VARCHAR(255) NOT NULL,
-    address VARCHAR(255) NOT NULL,
-    city VARCHAR(255) NOT NULL,
-    state VARCHAR(255) NOT NULL,
-    phone VARCHAR(255) NOT NULL
-)
+
+CREATE TABLE IF NOT EXISTS UserPublics
+(
+    id             INT PRIMARY KEY AUTO_INCREMENT,
+    firstName      VARCHAR(255),
+    lastName       VARCHAR(255),
+    address        VARCHAR(255),
+    city           VARCHAR(255),
+    state          VARCHAR(255),
+    phone          VARCHAR(255),
+    email          VARCHAR(255),
+    headImg        VARCHAR(255)   DEFAULT 'defaultUser.jpg',
+    username       VARCHAR(255) NOT NULL,
+    balance        DECIMAL(10, 2) DEFAULT 0,
+    userprivacy_id INT,
+    CONSTRAINT fk_userpublic_userprivacy
+        FOREIGN KEY (userprivacy_id) REFERENCES UserPrivacys (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
+);
+
+CREATE TABLE IF NOT EXISTS Carts
+(
+    id      INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    book_id INT,
+    number  INT,
+    CONSTRAINT fk_cart_user_id
+        FOREIGN KEY (user_id) REFERENCES UserPublics (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT,
+    CONSTRAINT fk_cart_book_id
+        FOREIGN KEY (book_id) REFERENCES Books (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
+);
+
+
+CREATE TABLE IF NOT EXISTS `Orders`
+(
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    user_id   INT,
+    receiver  VARCHAR(255),
+    createdAt TIMESTAMP                                      DEFAULT CURRENT_TIMESTAMP,
+    tel       VARCHAR(255),
+    address   VARCHAR(255),
+    status    ENUM ('unpaid', 'paid', 'shipped', 'received') DEFAULT 'unpaid',
+    CONSTRAINT fk_order_user_id
+        FOREIGN KEY (user_id) REFERENCES UserPublics (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS OrderItems
+(
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    book_id  INT,
+    number   INT,
+    order_id INT,
+    CONSTRAINT fk_orderItem_book_id
+        FOREIGN KEY (book_id) REFERENCES books (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT,
+    CONSTRAINT fk_orderItem_order_id
+        FOREIGN KEY (order_id) REFERENCES `Orders` (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
+);
+

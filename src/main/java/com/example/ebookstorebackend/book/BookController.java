@@ -10,30 +10,42 @@ import java.util.List;
 public class BookController {
     @Autowired
     private BookService bookService;
-    @GetMapping("/books")
-    public List<BookEntity> getBooks(){
-      return bookService.getBooks();
+
+    public static class BooksResponse {
+        public List<BookEntity> books;
+        public int total;
     }
-    @GetMapping("/book/{id}")
-    public BookEntity getBook(@PathVariable Long id){
+
+    @GetMapping("/api/books")
+    public BooksResponse getBooks() {
+        var res = new BooksResponse();
+        res.books = bookService.getBooks();
+        res.total = res.books.size();
+        return res;
+    }
+
+    @GetMapping("/api/book/{id}")
+    public BookEntity getBook(@PathVariable Long id) {
         return bookService.getBook(id);
     }
 
-    @PutMapping("/book/{id}")
-    public void replaceBook(@RequestBody BookEntity newBookEntity, @PathVariable Long id){
-           bookService.replaceBook(newBookEntity, id);
+    @PutMapping("/api/book/{id}")
+    public void replaceBook(@RequestBody BookEntity newBookEntity, @PathVariable Long id) {
+        bookService.replaceBook(newBookEntity, id);
     }
-    @PostMapping("/books")
-    public void addBook(@RequestBody BookEntity newBookEntity){
+
+    @PostMapping("/api/books")
+    public void addBook(@RequestBody BookEntity newBookEntity) {
         bookService.addBook(newBookEntity);
     }
-    @DeleteMapping("/book/{id}")
-    public void removeBook(@PathVariable Long id){
+
+    @DeleteMapping("/api/book/{id}")
+    public void removeBook(@PathVariable Long id) {
         bookService.removeBook(id);
     }
 
-    @GetMapping("/books/sorted")
-    public Page<BookEntity> sortedBooks(@RequestParam String sortBy, @RequestParam String direction, @RequestParam int pageNo, @RequestParam int size){
+    @GetMapping("/api/books/sorted")
+    public Page<BookEntity> sortedBooks(@RequestParam String sortBy, @RequestParam String direction, @RequestParam int pageNo, @RequestParam int size) {
         return bookService.sortedBooks(sortBy, direction, pageNo, size);
     }
 }

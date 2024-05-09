@@ -27,15 +27,9 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
-    static public class OrderPost {
-        public String receiver;
-        public String address;
-        public String tel;
-        public List<Integer> itemIds; // cartItemIds
-    }
 
     @PostMapping("/api/order")
-    public CommonResponse<Object> createOrder(@RequestBody OrderPost orderParam, HttpSession session) {
+    public CommonResponse<Object> createOrder(@RequestBody OrderDTO.OrderPost orderParam, HttpSession session) {
         OrderEntity newOrder = new OrderEntity();
         newOrder.setReceiver(orderParam.receiver);
         newOrder.setAddress(orderParam.address);

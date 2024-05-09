@@ -34,4 +34,8 @@ public class OrderService {
         return orderDao.getAllOrders();
     }
 
+    public List<OrderEntity> getOrdersByTimeRange(String start, String end) {
+        return orderDao.getOrdersByTimeRange(start, end);
+    }
+
 }

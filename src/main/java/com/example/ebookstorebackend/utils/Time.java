@@ -14,4 +14,17 @@ public class Time {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return localDateTime.format(formatter);
     }
+
+    static public boolean isValidRange(String start, String end) {
+        Timestamp endTime = null;
+        Timestamp startTime = null;
+        try {
+            startTime = start == null ? null : Timestamp.valueOf(start);
+            endTime = end == null ? null : Timestamp.valueOf(end);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid time format");
+            return false;
+        }
+        return true;
+    }
 }

@@ -7,42 +7,46 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public class BookDao {
     @Autowired
     private BookRepo mysqldb;
 
-    public BookEntity findBook(Long id){
-        return mysqldb.findById(id).orElseThrow(()->new BookNotFoundException(id));
+    public BookEntity findBook(Long id) {
+        return mysqldb.findById(id).orElseThrow(() -> new BookNotFoundException(id));
     }
 
-    public List<BookEntity> findAllBooks(){
-        return mysqldb.findAll();
+
+    public Page<BookEntity> findAllBooks(BookDTO.BookSearchParam params) {
+        if (params.keyword == null || params.keyword.isEmpty()) {
+            System.out.println("keyword is null");
+            return mysqldb.findAll(PageRequest.of(params.pageIndex, params.pageSize));
+        }
+        return mysqldb.findByTitleContaining(params.keyword, PageRequest.of(params.pageIndex, params.pageSize));
     }
-    public void replaceBook(BookEntity newBook, Long id){
+
+    public void replaceBook(BookEntity newBook, Long id) {
         mysqldb.findById(id).map(bookEntity -> {
             bookEntity.setAll(newBook);
             return mysqldb.save(bookEntity);
-        }).orElseGet(()->{
+        }).orElseGet(() -> {
             newBook.setId(id);
             return mysqldb.save(newBook);
         });
     }
-    public void addBook(BookEntity newBook){
+
+    public void addBook(BookEntity newBook) {
         mysqldb.save(newBook);
     }
-    public void removeBook(Long id){
+
+    public void removeBook(Long id) {
         mysqldb.deleteById(id);
     }
 
-   public Page<BookEntity> sortedBooks(String sortBy, String direction, int pageNo, int size){
+    public Page<BookEntity> sortedBooks(String sortBy, String direction, int pageNo, int size) {
         Sort bookSort = Sort.by(Sort.Direction.fromString(direction), sortBy);
         Pageable pageable = PageRequest.of(pageNo, size, bookSort);
         return mysqldb.findAll(pageable);
-   }
-
-
+    }
 
 }

@@ -3,6 +3,7 @@ package com.example.ebookstorebackend.order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -35,5 +36,24 @@ public class OrderDao {
 
     public List<OrderEntity> getAllOrders() {
         return orderRepo.findAll();
+    }
+
+    public List<OrderEntity> getOrdersByTimeRange(String start, String end) {
+        Timestamp endTime = null;
+        Timestamp startTime = null;
+        try {
+            startTime = start == null ? null : Timestamp.valueOf(start);
+            endTime = end == null ? null : Timestamp.valueOf(end);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid time format");
+            return null;
+        }
+        if (endTime == null && startTime == null)
+            return orderRepo.findAll();
+        if (endTime == null)
+            return orderRepo.findByTimeAfter(startTime);
+        if (startTime == null)
+            return orderRepo.findByTimeBefore(endTime);
+        return orderRepo.findByOrderTimeBetween(startTime, endTime);
     }
 }

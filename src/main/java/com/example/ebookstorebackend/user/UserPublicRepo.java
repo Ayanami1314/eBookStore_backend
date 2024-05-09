@@ -1,9 +1,9 @@
 package com.example.ebookstorebackend.user;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
 
 import java.util.Optional;
 
-public interface UserPublicRepo extends CrudRepository<UserPublicEntity, Long> {
+public interface UserPublicRepo extends ListCrudRepository<UserPublicEntity, Long> {
     Optional<UserPublicEntity> findByUsername(String username);
 }

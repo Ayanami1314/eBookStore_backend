@@ -12,13 +12,9 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    public static class LoginRequest {
-        public String username;
-        public String password;
-    }
 
     @PostMapping("/api/login")
-    public CommonResponse<UserPublicEntity> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
+    public CommonResponse<UserPublicEntity> login(@RequestBody UserDTO.LoginRequest loginRequest, HttpSession session) {
         var username = loginRequest.username;
         var password = loginRequest.password;
         CommonResponse<UserPublicEntity> response = new CommonResponse<>();
@@ -41,19 +37,13 @@ public class UserController {
     }
 
 
-    public static class UserResInfo {
-        public String nickname;
-        public int balance;
-        public Long id;
-    }
-
     @GetMapping("/api/user/me")
-    public UserResInfo me(HttpSession session) {
+    public UserDTO.UserResInfo me(HttpSession session) {
         UserPublicEntity currentUser = (UserPublicEntity) session.getAttribute("user");
         if (currentUser == null) {
             return null;
         }
-        UserResInfo userResInfo = new UserResInfo();
+        UserDTO.UserResInfo userResInfo = new UserDTO.UserResInfo();
         userResInfo.nickname = currentUser.getUsername();
         userResInfo.balance = currentUser.getBalance().intValue();
         userResInfo.id = currentUser.getId();
@@ -61,11 +51,28 @@ public class UserController {
     }
 
     @PutMapping("/api/user/me/password")
-    public CommonResponse<Object> changePassword(@RequestBody String newPassword) {
-        // TODO: 从token中获取用户名
-        String me = "admin";
-        return userService.changePassword(me, newPassword);
+    public CommonResponse<Object> changePassword(@RequestBody String password, HttpSession session) {
+        String username = userService.getCurUser(session).getUsername();
+        var response = new CommonResponse<>();
+        if (username == null) {
+            String msg = "You are not logged in";
+            System.out.println(msg);
+            response.ok = false;
+            response.message = msg;
+            response.data = new Object();
+            return response;
+        }
+        return userService.changePassword(username, password);
     }
 
+    @PutMapping("/api/logout")
+    public CommonResponse<Object> logout(HttpSession session) {
+        session.removeAttribute("user");
+        var response = new CommonResponse<>();
+        response.ok = true;
+        response.message = "Logout successful";
+        response.data = new Object();
+        return response;
+    }
     // TODO: admin part
 }

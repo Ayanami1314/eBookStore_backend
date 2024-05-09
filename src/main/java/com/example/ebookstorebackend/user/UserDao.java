@@ -3,6 +3,8 @@ package com.example.ebookstorebackend.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class UserDao {
     // TODO: 对于Privacy实体，进行哈希加密处理
@@ -72,4 +74,7 @@ public class UserDao {
         userPrivacyRepo.save(userPrivacy);
     }
 
+    public List<UserPublicEntity> getUsers() {
+        return userPublicRepo.findAll();
+    }
 }

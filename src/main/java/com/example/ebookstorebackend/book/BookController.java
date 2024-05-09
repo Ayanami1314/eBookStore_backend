@@ -4,24 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 //@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 public class BookController {
     @Autowired
     private BookService bookService;
 
-    public static class BooksResponse {
-        public List<BookEntity> books;
-        public int total;
-    }
 
     @GetMapping("/api/books")
-    public BooksResponse getBooks() {
-        var res = new BooksResponse();
-        res.books = bookService.getBooks();
-        res.total = res.books.size();
+    public BookDTO.BooksResponse getBooks(@RequestParam BookDTO.BookSearchParam params) {
+        // TODO: 是否需要修正前端API? 测试兼容性
+        var res = new BookDTO.BooksResponse();
+        var page = bookService.getBooks(params);
+        res.books = page.getContent();
+        res.total = (int) page.getTotalElements();
         return res;
     }
 

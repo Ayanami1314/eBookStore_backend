@@ -1,6 +1,7 @@
 package com.example.ebookstorebackend.user;
 
 import com.example.ebookstorebackend.CommonResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,21 @@ public class UserService {
 
     public boolean isVerified(String username, String password) {
         return userDao.isVerified(username, password);
+    }
+
+    public UserPublicEntity refreshUser(HttpSession session) {
+        UserPublicEntity user = (UserPublicEntity) session.getAttribute("user");
+        if (user == null) {
+            System.out.println("Please Login again.");
+            return null;
+        }
+        UserPublicEntity newUser = userDao.getUser(user.getUsername());
+        session.setAttribute("user", newUser);
+        return newUser;
+    }
+
+    public UserPublicEntity getCurUser(HttpSession session) {
+        return refreshUser(session);
     }
 
     public boolean isAdmin(String username) {

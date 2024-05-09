@@ -1,6 +1,7 @@
 package com.example.ebookstorebackend.user;
 
 
+import com.example.ebookstorebackend.cart.CartEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,6 +24,10 @@ public class UserPublicEntity {
     @JoinColumn(name = "userprivacy_id", referencedColumnName = "id")
     @JsonIgnore
     private UserPrivacyEntity userprivacy;
+
+    @OneToOne(mappedBy = "userPublic", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private CartEntity cart;
 
     private String email;
     private String headImg;

@@ -4,9 +4,9 @@
 # USE `ebookstore`;
 #  用mysql的时候取消注释
 # TODO: 奇怪的现象, springboot里面无法正确执行DROP
+DROP TABLE IF EXISTS `OrderItems`;
 DROP TABLE IF EXISTS `Carts`;
 DROP TABLE IF EXISTS `Orders`;
-DROP TABLE IF EXISTS `OrderItems`;
 DROP TABLE IF EXISTS `UserPublics`;
 DROP TABLE IF EXISTS `UserPrivacys`;
 DROP TABLE IF EXISTS `Books`;
@@ -44,9 +44,9 @@ CREATE TABLE IF NOT EXISTS UserPublics
     phone          VARCHAR(255),
     email          VARCHAR(255),
     headImg        VARCHAR(255)   DEFAULT 'defaultUser.jpg',
-    username       VARCHAR(255) NOT NULL,
+    username       VARCHAR(255) NOT NULL UNIQUE,
     balance        DECIMAL(10, 2) DEFAULT 0,
-    userprivacy_id INT,
+    userprivacy_id INT UNIQUE   NOT NULL,
     CONSTRAINT fk_userpublic_userprivacy
         FOREIGN KEY (userprivacy_id) REFERENCES UserPrivacys (id)
             ON DELETE CASCADE
@@ -57,14 +57,8 @@ CREATE TABLE IF NOT EXISTS Carts
 (
     id      INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
-    book_id INT,
-    number  INT,
     CONSTRAINT fk_cart_user_id
         FOREIGN KEY (user_id) REFERENCES UserPublics (id)
-            ON DELETE CASCADE
-            ON UPDATE RESTRICT,
-    CONSTRAINT fk_cart_book_id
-        FOREIGN KEY (book_id) REFERENCES Books (id)
             ON DELETE CASCADE
             ON UPDATE RESTRICT
 );
@@ -90,6 +84,11 @@ CREATE TABLE IF NOT EXISTS OrderItems
     book_id  INT,
     number   INT,
     order_id INT,
+    cart_id  INT,
+    CONSTRAINT fk_orderItem_cart_id
+        FOREIGN KEY (cart_id) REFERENCES Carts (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT,
     CONSTRAINT fk_orderItem_book_id
         FOREIGN KEY (book_id) REFERENCES books (id)
             ON DELETE CASCADE

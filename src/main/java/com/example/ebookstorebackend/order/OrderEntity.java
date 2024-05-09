@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -36,6 +37,7 @@ public class OrderEntity {
     private String address;
     private String tel;
     @JsonSerialize(using = com.example.ebookstorebackend.utils.TimestampSerializer.class)
+    @CreationTimestamp // Automatically set the time when the object is created
     private Timestamp createdAt;
 
     public enum Status {
@@ -57,5 +59,11 @@ public class OrderEntity {
                 ", createdAt=" + timeToString(createdAt) +
                 ", status=" + status +
                 '}';
+    }
+
+    public void addOrderItem(OrderItemEntity orderItem) {
+        if (orderItems == null)
+            orderItems = new java.util.ArrayList<>();
+        orderItems.add(orderItem);
     }
 }

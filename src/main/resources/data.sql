@@ -6,8 +6,8 @@ INSERT INTO Userpublics (username, userprivacy_id)
 VALUES ('root', (SELECT id FROM UserPrivacys WHERE username = 'root'));
 
 -- 插入到cart表
-INSERT INTO Carts (user_id, book_id, number)
-VALUES ((SELECT id FROM UserPublics WHERE username = 'root'), (SELECT id FROM books WHERE title = 'title'), 1);
+INSERT INTO Carts (user_id, number)
+VALUES ((SELECT id FROM UserPublics WHERE username = 'root'),  1);
 
 
 
@@ -17,8 +17,9 @@ VALUES ((SELECT id FROM UserPublics WHERE username = 'root'), 'Receiver Name', '
  (SELECT id FROM Books WHERE title = 'title')));
 
 -- 插入到orderItem表
-INSERT INTO OrderItems (book_id, number, order_id)
-VALUES ((SELECT id FROM books WHERE title = 'title'), 1, 1);
+INSERT INTO OrderItems (book_id, number, order_id, cart_id)
+VALUES ((SELECT id FROM books WHERE title = 'title'), 1, NULL, 1);
+
 
 -- 更多的书籍
 INSERT INTO Books (title, author, price, isbn, description, sales, cover)

@@ -33,4 +33,9 @@ public class CartEntity {
         this.userPublic = userPublic;
         this.orderItems = new ArrayList<>();
     }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

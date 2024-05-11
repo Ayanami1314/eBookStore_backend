@@ -3,7 +3,9 @@ package com.example.ebookstorebackend.orderitem;
 import com.example.ebookstorebackend.book.BookEntity;
 import com.example.ebookstorebackend.cart.CartEntity;
 import com.example.ebookstorebackend.order.OrderEntity;
+import com.example.ebookstorebackend.utils.Hash;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +26,7 @@ public class OrderItemEntity {
     private BookEntity book;
 
     @Column(name = "number")
+    @JsonProperty("number")
     private int quantity;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -56,4 +59,8 @@ public class OrderItemEntity {
         this.order = order;
     }
 
+    @Override
+    public int hashCode() {
+        return Hash.IDHashCode(id, "OrderItem" + book.getTitle());
+    }
 }

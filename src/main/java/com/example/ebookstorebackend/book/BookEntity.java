@@ -34,4 +34,9 @@ public class BookEntity {
         this.sales = bookEntity.sales;
         this.isbn = bookEntity.isbn;
     }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

@@ -12,8 +12,9 @@ public class BookController {
 
 
     @GetMapping("/api/books")
-    public BookDTO.BooksResponse getBooks(@RequestParam BookDTO.BookSearchParam params) {
+    public BookDTO.BooksResponse getBooks(@RequestParam String keyword, @RequestParam int pageIndex, @RequestParam int pageSize) {
         // TODO: 是否需要修正前端API? 测试兼容性
+        var params = new BookDTO.BookSearchParam(keyword, pageIndex, pageSize);
         var res = new BookDTO.BooksResponse();
         var page = bookService.getBooks(params);
         res.books = page.getContent();

@@ -18,6 +18,7 @@ public class BookDao {
 
 
     public Page<BookEntity> findAllBooks(BookDTO.BookSearchParam params) {
+
         if (params.keyword == null || params.keyword.isEmpty()) {
             System.out.println("keyword is null");
             return mysqldb.findAll(PageRequest.of(params.pageIndex, params.pageSize));

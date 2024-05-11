@@ -2,6 +2,7 @@ package com.example.ebookstorebackend.user;
 
 
 import com.example.ebookstorebackend.cart.CartEntity;
+import com.example.ebookstorebackend.utils.Hash;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -97,5 +98,10 @@ public class UserPublicEntity {
                 ", state='" + state + '\'' +
                 ", balance=" + balance +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Hash.IDHashCode(id, "UserPublic" + username);
     }
 }

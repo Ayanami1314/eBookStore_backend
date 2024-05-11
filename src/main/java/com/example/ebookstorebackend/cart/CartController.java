@@ -41,11 +41,12 @@ public class CartController {
 
     @PutMapping("/api/cart/{id}")
     public CommonResponse<Object> updateItemQuantity(@PathVariable Long id, @RequestParam(name = "number") int quantity, HttpSession session) {
-        cartService.updateCartItem(id, quantity, session);
+        System.out.println("updateItemQuantity: " + id + " " + quantity);
+        boolean success = cartService.updateCartItem(id, quantity, session);
         var response = new CommonResponse<>();
         response.data = new Object();
-        response.ok = true;
-        response.message = "Item quantity updated";
+        response.ok = success;
+        response.message = "Item quantity updated" + (success ? "" : " (failed)");
         return response;
     }
 

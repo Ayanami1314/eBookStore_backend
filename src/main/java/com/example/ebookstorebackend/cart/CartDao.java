@@ -82,11 +82,10 @@ public class CartDao {
         if (cart == null) {
             cart = createCart(session); // HINT: Create a new cart if the user does not have one
         }
+        orderItem.setOrder(null);
+        orderItem.setCart(cart);
         cart.getOrderItems().add(orderItem);
-        cartRepo.save(cart);
-        OrderItemEntity newOrderItem = orderItem;
-        newOrderItem.setCart(cart);
-        orderItemDao.updateOrderItem(orderItem);
+        cartRepo.save(cart); // 级联保存
         return true;
     }
 
@@ -104,21 +103,22 @@ public class CartDao {
         return true;
     }
 
-    public void updateCartItem(Long orderItemId, int quantity, HttpSession session) {
+    public boolean updateCartItem(Long orderItemId, int quantity, HttpSession session) {
         CartEntity cart = getCart(session);
         if (cart == null) {
             System.out.println("Cannot update item in cart: cart does not exist");
-            return;
+            return false;
         }
         for (OrderItemEntity orderItem : cart.getOrderItems()) {
             if (orderItem.getId().equals(orderItemId)) {
                 orderItem.setQuantity(quantity);
                 orderItemDao.updateOrderItem(orderItem);
                 cartRepo.save(cart);
-                return;
+                return true;
             }
         }
         System.out.println("Cannot update item in cart: item does not exist");
+        return false;
     }
 
 }

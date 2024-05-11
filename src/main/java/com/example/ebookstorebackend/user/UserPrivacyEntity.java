@@ -1,5 +1,6 @@
 package com.example.ebookstorebackend.user;
 
+import com.example.ebookstorebackend.utils.Hash;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -54,5 +55,10 @@ public class UserPrivacyEntity {
                 ", username='" + username + '\'' +
                 ", role=" + role +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Hash.IDHashCode(id, "UserPrivacy" + username);
     }
 }

@@ -30,29 +30,54 @@ public class OrderController {
 
     @PostMapping("/api/order")
     public CommonResponse<Object> createOrder(@RequestBody OrderDTO.OrderPost orderParam, HttpSession session) {
+        System.out.println(orderParam);
         OrderEntity newOrder = new OrderEntity();
         newOrder.setReceiver(orderParam.receiver);
         newOrder.setAddress(orderParam.address);
         newOrder.setTel(orderParam.tel);
+
         var currentUser = userService.getCurUser(session);
         newOrder.setUserPublic(currentUser);
-
+        var response = new CommonResponse<>();
+        response.data = new Object();
+        // validate
+        response.ok = true;
+        if (orderParam.itemIds.isEmpty()) {
+            response.ok = false;
+            response.message = "No item in order";
+            return response;
+        }
         for (int id : orderParam.itemIds) {
             Long idLong = Long.valueOf(id);
             var orderItem = cartService.getCartItem(idLong, session);
-            if (orderItem == null) {
+            if (orderItem == null || orderItem.getCart() == null) {
                 System.out.println("Cannot find that item in cart");
-                continue;
+                response.message = "Bad itemId " + id;
+                System.out.println(response.message);
+                response.ok = false;
+                return response;
             }
+            if (orderItem.getQuantity() <= 0) {
+                System.out.println("Quantity is less than 1");
+                response.message = "Quantity is less than 1";
+                System.out.println(response.message);
+                response.ok = false;
+                return response;
+            }
+        }
+
+        System.out.println("validate ok");
+        for (int id : orderParam.itemIds) {
+            Long idLong = Long.valueOf(id);
+            var orderItem = cartService.getCartItem(idLong, session);
             cartService.removeCartItem(idLong, session);
-            orderItem.setOrder(newOrder);
             newOrder.addOrderItem(orderItem);
         }
+
+        System.out.println(newOrder);
         orderService.createOrder(newOrder);
 
         System.out.println(newOrder);
-        var response = new CommonResponse<>();
-        response.data = new Object();
         response.ok = true;
         response.message = "Order created";
         return response;

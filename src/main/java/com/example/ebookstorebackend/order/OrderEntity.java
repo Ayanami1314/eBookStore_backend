@@ -52,7 +52,7 @@ public class OrderEntity {
         return "OrderEntity{" +
                 "id=" + id +
                 ", user=" + (userPublic == null ? "null" : userPublic.getUsername()) +
-                ", orderItemIds=" + (orderItems == null ? "null" : orderItems.stream().map(OrderItemEntity::getId).toString()) +
+                ", orderItemIds=" + (orderItems == null ? "null" : orderItems.stream().map(OrderItemEntity::getId).toList().toString()) +
                 ", receiver='" + receiver + '\'' +
                 ", address='" + address + '\'' +
                 ", tel='" + tel + '\'' +
@@ -64,6 +64,13 @@ public class OrderEntity {
     public void addOrderItem(OrderItemEntity orderItem) {
         if (orderItems == null)
             orderItems = new java.util.ArrayList<>();
+        orderItem.setOrder(this);
+        orderItem.setCart(null);
         orderItems.add(orderItem);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

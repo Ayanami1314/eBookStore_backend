@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class BookController {
     @Autowired
-    private BookService bookService;
+    private BookServiceImpl bookServiceImpl;
 
 
     @GetMapping("/api/books")
@@ -16,7 +16,7 @@ public class BookController {
         // TODO: 是否需要修正前端API? 测试兼容性
         var params = new BookDTO.BookSearchParam(keyword, pageIndex, pageSize);
         var res = new BookDTO.BooksResponse();
-        var page = bookService.getBooks(params);
+        var page = bookServiceImpl.getBooks(params);
         res.books = page.getContent();
         res.total = (int) page.getTotalElements();
         return res;
@@ -24,26 +24,26 @@ public class BookController {
 
     @GetMapping("/api/book/{id}")
     public BookEntity getBook(@PathVariable Long id) {
-        return bookService.getBook(id);
+        return bookServiceImpl.getBook(id);
     }
 
     @PutMapping("/api/book/{id}")
     public void replaceBook(@RequestBody BookEntity newBookEntity, @PathVariable Long id) {
-        bookService.replaceBook(newBookEntity, id);
+        bookServiceImpl.replaceBook(newBookEntity, id);
     }
 
     @PostMapping("/api/books")
     public void addBook(@RequestBody BookEntity newBookEntity) {
-        bookService.addBook(newBookEntity);
+        bookServiceImpl.addBook(newBookEntity);
     }
 
     @DeleteMapping("/api/book/{id}")
     public void removeBook(@PathVariable Long id) {
-        bookService.removeBook(id);
+        bookServiceImpl.removeBook(id);
     }
 
     @GetMapping("/api/books/sorted")
     public Page<BookEntity> sortedBooks(@RequestParam String sortBy, @RequestParam String direction, @RequestParam int pageNo, @RequestParam int size) {
-        return bookService.sortedBooks(sortBy, direction, pageNo, size);
+        return bookServiceImpl.sortedBooks(sortBy, direction, pageNo, size);
     }
 }

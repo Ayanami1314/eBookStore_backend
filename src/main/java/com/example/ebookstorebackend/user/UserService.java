@@ -2,88 +2,33 @@ package com.example.ebookstorebackend.user;
 
 import com.example.ebookstorebackend.CommonResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-public class UserService {
-    @Autowired
-    private UserDao userDao;
+public interface UserService {
+    boolean isUserExist(String username);
 
-    public boolean isUserExist(String username) {
-        return userDao.isUserExist(username);
-    }
+    boolean isVerified(String username, String password);
 
-    public boolean isVerified(String username, String password) {
-        return userDao.isVerified(username, password);
-    }
+    UserPublicEntity refreshUser(HttpSession session);
 
-    public UserPublicEntity refreshUser(HttpSession session) {
-        UserPublicEntity user = (UserPublicEntity) session.getAttribute("user");
-        if (user == null) {
-            System.out.println("Please Login again.");
-            return null;
-        }
-        UserPublicEntity newUser = userDao.getUser(user.getUsername());
-        session.setAttribute("user", newUser);
-        return newUser;
-    }
+    UserPublicEntity getCurUser(HttpSession session);
 
-    public UserPublicEntity getCurUser(HttpSession session) {
-        return refreshUser(session);
-    }
+    boolean isAdmin(String username);
 
-    public boolean isAdmin(String username) {
-        return userDao.isAdmin(username);
-    }
+    boolean isUser(String username);
 
-    public boolean isUser(String username) {
-        return userDao.isUser(username);
-    }
+    void addUser(String username, String password, String role);
 
-    public void addUser(String username, String password, String role) {
-        if (role.equals("admin")) {
-            userDao.addUser(username, password, UserPrivacyEntity.Role.admin);
-        } else if (role.equals("user")) {
-            userDao.addUser(username, password, UserPrivacyEntity.Role.user);
-        }
-    }
+    void removeUser(String username);
 
-    public void removeUser(String username) {
-        userDao.removeUser(username);
-    }
+    void updateUser(UserPublicEntity newUser, String username);
 
-    public void updateUser(UserPublicEntity newUser, String username) {
-        userDao.updateUser(newUser, username);
-    }
+    void setRole(String username, String role);
 
-    public void setRole(String username, String role) {
-        userDao.setRole(username, role);
-    }
+    CommonResponse<Object> changePassword(String username, String password);
 
-    public CommonResponse<Object> changePassword(String username, String password) {
-        try {
-            userDao.changePassword(username, password);
-        } catch (Exception e) {
-            CommonResponse<Object> response = new CommonResponse<>();
-            response.ok = false;
-            response.message = "Password change failed";
-            return response;
-        }
-        CommonResponse<Object> response = new CommonResponse<>();
-        response.ok = true;
-        response.message = "Password changed";
-        return response;
-    }
+    UserPublicEntity getUser(String username);
 
-    public UserPublicEntity getUser(String username) {
-        return userDao.getUser(username);
-    }
-
-
-    public List<UserPublicEntity> getAllUsers() {
-        return userDao.getUsers();
-    }
+    List<UserPublicEntity> getAllUsers();
 }

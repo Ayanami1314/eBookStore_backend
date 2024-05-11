@@ -2,7 +2,7 @@ package com.example.ebookstorebackend.cart;
 
 import com.example.ebookstorebackend.CommonResponse;
 import com.example.ebookstorebackend.book.BookEntity;
-import com.example.ebookstorebackend.book.BookService;
+import com.example.ebookstorebackend.book.BookServiceImpl;
 import com.example.ebookstorebackend.orderitem.OrderItemEntity;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class CartController {
     private CartService cartService;
 
     @Autowired
-    private BookService bookService;
+    private BookServiceImpl bookServiceImpl;
 
     @GetMapping("/api/cart")
     public List<OrderItemEntity> getUserCart(HttpSession session) {
@@ -27,7 +27,7 @@ public class CartController {
     @PutMapping("/api/cart")
     public CommonResponse<Object> addCartItem(@RequestParam Long bookId, HttpSession session) {
         OrderItemEntity newItem = new OrderItemEntity();
-        BookEntity book = bookService.getBook(bookId);
+        BookEntity book = bookServiceImpl.getBook(bookId);
         newItem.setBook(book);
         newItem.setQuantity(1);
         boolean success = cartService.addCartItem(newItem, session);
@@ -42,6 +42,9 @@ public class CartController {
     @PutMapping("/api/cart/{id}")
     public CommonResponse<Object> updateItemQuantity(@PathVariable Long id, @RequestParam(name = "number") int quantity, HttpSession session) {
         System.out.println("updateItemQuantity: " + id + " " + quantity);
+        if (quantity <= 0) {
+            return new CommonResponse<Object>("Quantity must be greater than 0", new Object(), false);
+        }
         boolean success = cartService.updateCartItem(id, quantity, session);
         var response = new CommonResponse<>();
         response.data = new Object();

@@ -7,37 +7,44 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
-public class OrderDao {
+public class OrderDaoImpl implements OrderDao {
     @Autowired
     private OrderRepo orderRepo;
 
-    public OrderEntity addOrder(OrderEntity order) {
-        return orderRepo.save(order);
+    @Override
+    public void addOrder(OrderEntity order) {
+        orderRepo.save(order);
     }
 
+    @Override
     public OrderEntity getOrderById(Long id) {
         return orderRepo.findById(id).orElse(null);
     }
 
+    @Override
     public void deleteOrderById(Long id) {
         orderRepo.deleteById(id);
     }
 
+    @Override
     public void deleteAllOrders() {
         orderRepo.deleteAll();
     }
 
 
+    @Override
     public OrderEntity updateOrder(OrderEntity newOrder) {
         // HINT: You can use the save method to update an existing entity
         return orderRepo.save(newOrder);
     }
 
 
+    @Override
     public List<OrderEntity> getAllOrders() {
         return orderRepo.findAll();
     }
 
+    @Override
     public List<OrderEntity> getOrdersByTimeRange(String start, String end) {
         Timestamp endTime = null;
         Timestamp startTime = null;

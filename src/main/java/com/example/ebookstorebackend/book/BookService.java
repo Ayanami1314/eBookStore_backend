@@ -1,37 +1,17 @@
 package com.example.ebookstorebackend.book;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-@Service
-public class BookService {
-    @Autowired
-    private BookDao bookDao;
+public interface BookService {
+    Page<BookEntity> getBooks(BookDTO.BookSearchParam params);
 
-    public Page<BookEntity> getBooks(BookDTO.BookSearchParam params) {
-        return bookDao.findAllBooks(params);
+    BookEntity getBook(Long id);
 
-    }
+    void addBook(BookEntity newBook);
 
-    public BookEntity getBook(Long id) {
-        return bookDao.findBook(id);
-    }
+    void replaceBook(BookEntity newBook, Long id);
 
-    public void addBook(BookEntity newBook) {
-        bookDao.addBook(newBook);
-    }
+    void removeBook(Long id);
 
-    public void replaceBook(BookEntity newBook, Long id) {
-        bookDao.replaceBook(newBook, id);
-    }
-
-    public void removeBook(Long id) {
-        bookDao.removeBook(id);
-    }
-
-    public Page<BookEntity> sortedBooks(String sortBy, String direction, int pageNo, int size) {
-        return bookDao.sortedBooks(sortBy, direction, pageNo, size);
-    }
-
+    Page<BookEntity> sortedBooks(String sortBy, String direction, int pageNo, int size);
 }

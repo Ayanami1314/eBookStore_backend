@@ -1,41 +1,19 @@
 package com.example.ebookstorebackend.order;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 
-@Service
-public class OrderService {
-    @Autowired
-    private OrderDao orderDao;
+public interface OrderService {
+    void createOrder(OrderEntity order);
 
-    public void createOrder(OrderEntity order) {
-        orderDao.addOrder(order);
-    }
+    void deleteOrder(Long id);
 
-    public void deleteOrder(Long id) {
-        orderDao.deleteOrderById(id);
-    }
+    void deleteAllOrders();
 
-    public void deleteAllOrders() {
-        orderDao.deleteAllOrders();
-    }
+    OrderEntity getOrder(Long id);
 
-    public OrderEntity getOrder(Long id) {
-        return orderDao.getOrderById(id);
-    }
+    OrderEntity updateOrder(OrderEntity newOrder);
 
-    public OrderEntity updateOrder(OrderEntity newOrder) {
-        return orderDao.updateOrder(newOrder);
-    }
+    List<OrderEntity> getAllOrders();
 
-    public List<OrderEntity> getAllOrders() {
-        return orderDao.getAllOrders();
-    }
-
-    public List<OrderEntity> getOrdersByTimeRange(String start, String end) {
-        return orderDao.getOrdersByTimeRange(start, end);
-    }
-
+    List<OrderEntity> getOrdersByTimeRange(String start, String end);
 }

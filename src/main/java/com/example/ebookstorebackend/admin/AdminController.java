@@ -2,14 +2,14 @@ package com.example.ebookstorebackend.admin;
 
 import com.example.ebookstorebackend.CommonResponse;
 import com.example.ebookstorebackend.book.BookEntity;
-import com.example.ebookstorebackend.book.BookService;
+import com.example.ebookstorebackend.book.BookServiceImpl;
 import com.example.ebookstorebackend.cart.CartService;
 import com.example.ebookstorebackend.order.OrderEntity;
-import com.example.ebookstorebackend.order.OrderService;
+import com.example.ebookstorebackend.order.OrderServiceImpl;
 import com.example.ebookstorebackend.orderitem.OrderItemEntity;
-import com.example.ebookstorebackend.orderitem.OrderItemService;
+import com.example.ebookstorebackend.orderitem.OrderItemServiceImpl;
 import com.example.ebookstorebackend.user.UserPublicEntity;
-import com.example.ebookstorebackend.user.UserService;
+import com.example.ebookstorebackend.user.UserServiceImpl;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,20 +22,20 @@ import static com.example.ebookstorebackend.utils.Time.isValidRange;
 @RestController
 public class AdminController {
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
     @Autowired
-    private BookService bookService;
+    private BookServiceImpl bookServiceImpl;
     @Autowired
     private CartService cartService;
     @Autowired
-    private OrderItemService orderItemService;
+    private OrderItemServiceImpl orderItemServiceImpl;
     @Autowired
-    private OrderService orderService;
+    private OrderServiceImpl orderServiceImpl;
 
 
     @DeleteMapping("/api/admin/book/{id}")
     public CommonResponse<Object> removeBook(@PathVariable Long id) {
-        bookService.removeBook(id);
+        bookServiceImpl.removeBook(id);
         var res = new CommonResponse<>();
         res.ok = true;
         res.message = "Book removed";
@@ -45,7 +45,7 @@ public class AdminController {
 
     @GetMapping("/api/admin/users")
     public List<UserPublicEntity> getAllUsers() {
-        return userService.getAllUsers();
+        return userServiceImpl.getAllUsers();
     }
 
     static class BookAnalysis {
@@ -61,7 +61,7 @@ public class AdminController {
         // TODO: implement this
         if (!isValidRange(start, end))
             return new ArrayList<>();
-        List<OrderEntity> orders = orderService.getOrdersByTimeRange(start, end);
+        List<OrderEntity> orders = orderServiceImpl.getOrdersByTimeRange(start, end);
         List<BookAnalysis> bookAnalysis = new ArrayList<>();
         for (OrderEntity order : orders) {
             for (OrderItemEntity orderItem : order.getOrderItems()) {
@@ -91,7 +91,7 @@ public class AdminController {
 
     @PostMapping("/api/admin/book")
     public CommonResponse<Object> addBook(@RequestBody BookEntity newBook) {
-        bookService.addBook(newBook);
+        bookServiceImpl.addBook(newBook);
         var res = new CommonResponse<>();
         res.ok = true;
         res.message = "Book added";
@@ -101,7 +101,7 @@ public class AdminController {
 
     @PutMapping("/api/admin/book/{id}")
     public CommonResponse<Object> replaceBook(@PathVariable Long id, @RequestBody BookEntity newBook) {
-        bookService.replaceBook(newBook, id);
+        bookServiceImpl.replaceBook(newBook, id);
         var res = new CommonResponse<>();
         res.ok = true;
         res.message = "Book replaced";

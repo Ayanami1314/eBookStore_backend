@@ -16,13 +16,13 @@ DROP TABLE IF EXISTS `Books`;
 CREATE TABLE IF NOT EXISTS Books
 (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    title       VARCHAR(255)   NOT NULL,
-    author      VARCHAR(255)   NOT NULL,
-    price       DECIMAL(10, 2) NOT NULL,
-    isbn        VARCHAR(17)    NOT NULL, # 13位isbn 5部分 == 4 '-'
-    description TEXT           NOT NULL,
-    sales       INT            NOT NULL DEFAULT 0,
-    cover       VARCHAR(255)   NOT NULL
+    title       VARCHAR(255) NOT NULL,
+    author      VARCHAR(255) NOT NULL,
+    price       INT          NOT NULL,
+    isbn        VARCHAR(17)  NOT NULL, # 13位isbn 5部分 == 4 '-'
+    description TEXT         NOT NULL,
+    sales       INT          NOT NULL DEFAULT 0,
+    cover       VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS UserPrivacys
@@ -43,10 +43,11 @@ CREATE TABLE IF NOT EXISTS UserPublics
     state          VARCHAR(255),
     phone          VARCHAR(255),
     email          VARCHAR(255),
-    headImg        VARCHAR(255)   DEFAULT 'defaultUser.jpg',
+    headImg        VARCHAR(255)              DEFAULT 'defaultUser.jpg',
     username       VARCHAR(255) NOT NULL UNIQUE,
-    balance        DECIMAL(10, 2) DEFAULT 0,
+    balance        DECIMAL(10, 2)            DEFAULT 0,
     userprivacy_id INT UNIQUE   NOT NULL,
+    status         ENUM ('normal', 'banned') DEFAULT 'normal',
     CONSTRAINT fk_userpublic_userprivacy
         FOREIGN KEY (userprivacy_id) REFERENCES UserPrivacys (id)
             ON DELETE CASCADE

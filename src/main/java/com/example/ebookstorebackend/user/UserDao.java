@@ -15,6 +15,8 @@ public interface UserDao {
 
     UserPublicEntity getUser(String username);
 
+    UserPublicEntity getUser(Long id);
+
     void removeUser(String username);
 
     void updateUser(UserPublicEntity newUser, String username);
@@ -24,4 +26,8 @@ public interface UserDao {
     void changePassword(String username, String password);
 
     List<UserPublicEntity> getUsers();
+
+    List<UserPublicEntity> searchUsers(String keyword);
+
+    boolean changeUserStatus(String username, UserPublicEntity.Status status);
 }

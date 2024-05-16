@@ -4,13 +4,11 @@ package com.example.ebookstorebackend.order;
 import com.example.ebookstorebackend.CommonResponse;
 import com.example.ebookstorebackend.cart.CartService;
 import com.example.ebookstorebackend.orderitem.OrderItemService;
+import com.example.ebookstorebackend.user.UserPublicEntity;
 import com.example.ebookstorebackend.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -84,7 +82,11 @@ public class OrderController {
     }
 
     @GetMapping("/api/order")
-    public List<OrderEntity> getOrders() {
-        return orderService.getAllOrders();
+    public List<OrderEntity> getOrders(@RequestParam OrderDTO.OrderQuery query, HttpSession session) {
+        UserPublicEntity cur = userService.getCurUser(session);
+        if (query.all && cur.isAdministrator()) {
+            return orderService.searchOrdersByTimeRange(query.getStart(), query.getEnd(), query.getKeyword());
+        }
+        return orderService.searchMyOrdersByTimeRange(query.getStart(), query.getEnd(), query.getKeyword(), session);
     }
 }

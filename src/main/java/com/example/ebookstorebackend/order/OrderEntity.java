@@ -73,4 +73,9 @@ public class OrderEntity {
     public int hashCode() {
         return id.hashCode();
     }
+
+    public int getTotalCost() {
+        // TODO: opt: do this in sql
+        return orderItems.stream().mapToInt(OrderItemEntity::getCost).sum();
+    }
 }

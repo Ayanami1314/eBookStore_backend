@@ -88,4 +88,32 @@ public class UserDaoImpl implements UserDao {
     public List<UserPublicEntity> getUsers() {
         return userPublicRepo.findAll();
     }
+
+    @Override
+    public List<UserPublicEntity> searchUsers(String keyword) {
+        return userPublicRepo.findByUsernameContaining(keyword);
+    }
+
+    @Override
+    public boolean changeUserStatus(String username, UserPublicEntity.Status status) {
+        try {
+            UserPublicEntity userPublicEntity = userPublicRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+            userPublicEntity.setStatus(status);
+            userPublicRepo.save(userPublicEntity);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public UserPublicEntity getUser(Long id) {
+        try {
+            return userPublicRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id.toString()));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 }

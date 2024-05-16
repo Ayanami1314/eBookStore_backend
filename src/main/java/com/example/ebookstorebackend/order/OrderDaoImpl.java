@@ -1,15 +1,22 @@
 package com.example.ebookstorebackend.order;
 
+import com.example.ebookstorebackend.book.BookEntity;
+import com.example.ebookstorebackend.book.BookRepo;
+import com.example.ebookstorebackend.orderitem.OrderItemEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class OrderDaoImpl implements OrderDao {
     @Autowired
     private OrderRepo orderRepo;
+    @Autowired
+    private BookRepo bookRepo;
 
     @Override
     public void addOrder(OrderEntity order) {
@@ -44,10 +51,29 @@ public class OrderDaoImpl implements OrderDao {
         return orderRepo.findAll();
     }
 
+    public List<OrderEntity> filterByBookContains(List<OrderEntity> orders, String keyword) {
+        List<BookEntity> books = bookRepo.findByTitleContaining(keyword);
+        if (books == null)
+            return orders;
+        Set<BookEntity> bookSet = new HashSet<>(books);
+        for (OrderEntity order : orders) {
+            boolean contains = false;
+            for (OrderItemEntity item : order.getOrderItems()) {
+                if (bookSet.contains(item.getBook())) {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains)
+                orders.remove(order);
+        }
+        return orders;
+    }
+
     @Override
     public List<OrderEntity> getOrdersByTimeRange(String start, String end) {
-        Timestamp endTime = null;
-        Timestamp startTime = null;
+        Timestamp endTime;
+        Timestamp startTime;
         try {
             startTime = start == null ? null : Timestamp.valueOf(start);
             endTime = end == null ? null : Timestamp.valueOf(end);
@@ -62,5 +88,38 @@ public class OrderDaoImpl implements OrderDao {
         if (startTime == null)
             return orderRepo.findByTimeBefore(endTime);
         return orderRepo.findByOrderTimeBetween(startTime, endTime);
+    }
+
+
+    @Override
+    public List<OrderEntity> getOnesOrdersByTimeRange(String start, String end, Long userId) {
+        Timestamp endTime = null;
+        Timestamp startTime = null;
+        try {
+            startTime = start == null ? null : Timestamp.valueOf(start);
+            endTime = end == null ? null : Timestamp.valueOf(end);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid time format");
+            return null;
+        }
+        if (endTime == null && startTime == null)
+            return orderRepo.findAll();
+        if (endTime == null)
+            return orderRepo.findByTimeAfterAndUserName(startTime, userId);
+        if (startTime == null)
+            return orderRepo.findByTimeBeforeAndUserName(endTime, userId);
+        return orderRepo.findByOrderTimeBetweenAndUserName(startTime, endTime, userId);
+    }
+
+    @Override
+    public List<OrderEntity> searchOrdersByTimeRange(String start, String end, String keyword) {
+        List<OrderEntity> orders = getOrdersByTimeRange(start, end);
+        return filterByBookContains(orders, keyword);
+    }
+
+    @Override
+    public List<OrderEntity> searchOnesOrdersByTimeRange(String start, String end, String keyword, Long userId) {
+        List<OrderEntity> orders = getOnesOrdersByTimeRange(start, end, userId);
+        return filterByBookContains(orders, keyword);
     }
 }

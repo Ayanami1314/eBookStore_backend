@@ -30,5 +30,11 @@ public interface UserService {
 
     UserPublicEntity getUser(String username);
 
+    UserPublicEntity getUser(Long id);
+
     List<UserPublicEntity> getAllUsers();
+
+    List<UserPublicEntity> searchUsers(String keyword);
+
+    boolean changeUserStatus(String username, UserPublicEntity.Status status);
 }

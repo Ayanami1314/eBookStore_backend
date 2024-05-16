@@ -29,6 +29,12 @@ public class UserPublicEntity {
     @OneToOne(mappedBy = "userPublic", cascade = CascadeType.ALL)
     @JsonIgnore
     private CartEntity cart;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.normal;
+    
+    public enum Status {
+        banned, normal
+    }
 
     private String email;
     private String headImg;
@@ -38,7 +44,7 @@ public class UserPublicEntity {
     private String firstName;
     private String lastName;
     private String city;
-    private String state;
+    private String state; // 州
     @Column(precision = 10, scale = 2)
     private BigDecimal balance;
 

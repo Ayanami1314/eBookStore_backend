@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class UserController {
     @Autowired
-    UserServiceImpl userServiceImpl;
+    UserService userService;
 
 
     @PostMapping("/api/login")
@@ -19,7 +19,7 @@ public class UserController {
         var password = loginRequest.password;
         CommonResponse<UserPublicEntity> response = new CommonResponse<>();
         try {
-            if (userServiceImpl.isVerified(username, password)) {
+            if (userService.isVerified(username, password)) {
                 response.ok = true;
                 response.message = "Login successful";
                 response.data = new UserPublicEntity();
@@ -31,7 +31,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        var userPublic = userServiceImpl.getUser(username);
+        var userPublic = userService.getUser(username);
         session.setAttribute("user", userPublic);
         return response;
     }
@@ -52,7 +52,7 @@ public class UserController {
 
     @PutMapping("/api/user/me/password")
     public CommonResponse<Object> changePassword(@RequestBody String password, HttpSession session) {
-        String username = userServiceImpl.getCurUser(session).getUsername();
+        String username = userService.getCurUser(session).getUsername();
         var response = new CommonResponse<>();
         if (username == null) {
             String msg = "You are not logged in";
@@ -62,7 +62,7 @@ public class UserController {
             response.data = new Object();
             return response;
         }
-        return userServiceImpl.changePassword(username, password);
+        return userService.changePassword(username, password);
     }
 
     @PutMapping("/api/logout")
@@ -74,5 +74,4 @@ public class UserController {
         response.data = new Object();
         return response;
     }
-    // TODO: admin part
 }

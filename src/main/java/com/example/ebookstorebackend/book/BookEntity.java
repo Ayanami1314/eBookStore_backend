@@ -20,7 +20,7 @@ public class BookEntity {
     private String title;
     private String description;
     private String author;
-    private double price;
+    private int price; // 分为单位
     private String cover; // 图像资源的url
     private int sales;
     private String isbn;
@@ -38,5 +38,9 @@ public class BookEntity {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public boolean equals(BookEntity book) {
+        return this.id.equals(book.id);
     }
 }

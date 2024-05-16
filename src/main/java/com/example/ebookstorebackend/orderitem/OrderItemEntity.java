@@ -63,4 +63,10 @@ public class OrderItemEntity {
     public int hashCode() {
         return Hash.IDHashCode(id, "OrderItem" + book.getTitle());
     }
+
+    public int getCost() {
+        if (book == null)
+            return 0;
+        return book.getPrice() * quantity;
+    }
 }

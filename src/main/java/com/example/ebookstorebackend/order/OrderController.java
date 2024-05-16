@@ -46,7 +46,7 @@ public class OrderController {
             return response;
         }
         for (int id : orderParam.itemIds) {
-            Long idLong = Long.valueOf(id);
+            Long idLong = (long) id;
             var orderItem = cartService.getCartItem(idLong, session);
             if (orderItem == null || orderItem.getCart() == null) {
                 System.out.println("Cannot find that item in cart");
@@ -66,9 +66,9 @@ public class OrderController {
 
         System.out.println("validate ok");
         for (int id : orderParam.itemIds) {
-            Long idLong = Long.valueOf(id);
+            Long idLong = (long) id;
             var orderItem = cartService.getCartItem(idLong, session);
-            cartService.removeCartItem(idLong, session);
+            cartService.removeCartItem(idLong, session, false);
             newOrder.addOrderItem(orderItem);
         }
 
@@ -82,11 +82,9 @@ public class OrderController {
     }
 
     @GetMapping("/api/order")
-    public List<OrderEntity> getOrders(@RequestParam OrderDTO.OrderQuery query, HttpSession session) {
+    public List<OrderEntity> getOrders(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword, HttpSession session) {
         UserPublicEntity cur = userService.getCurUser(session);
-        if (query.all && cur.isAdministrator()) {
-            return orderService.searchOrdersByTimeRange(query.getStart(), query.getEnd(), query.getKeyword());
-        }
-        return orderService.searchMyOrdersByTimeRange(query.getStart(), query.getEnd(), query.getKeyword(), session);
+
+        return orderService.searchMyOrdersByTimeRange(start, end, keyword, session);
     }
 }

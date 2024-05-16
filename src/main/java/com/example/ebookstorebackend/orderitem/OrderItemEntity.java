@@ -21,7 +21,8 @@ public class OrderItemEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    // 只有更新book操作会影响到OrderItem，orderItem不会反向影响book，保持级联影响单向
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", referencedColumnName = "id")
     private BookEntity book;
 
@@ -29,12 +30,14 @@ public class OrderItemEntity {
     @JsonProperty("number")
     private int quantity;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // 同理，orderItem(的删除)不应该反向影响order，保持级联影响单向
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     @JsonIgnore
     private OrderEntity order; // HINT: add jsonignore to avoid recursive call
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // 同理，orderItem不应该反向影响cart，保持级联影响单向
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", referencedColumnName = "id")
     @JsonIgnore
     private CartEntity cart;

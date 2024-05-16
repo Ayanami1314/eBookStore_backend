@@ -54,7 +54,12 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public UserPublicEntity getUser(String username) {
-        return userPublicRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        try {
+            return userPublicRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @Override

@@ -14,7 +14,11 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public BookEntity findBook(Long id) {
-        return mysqldb.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        BookEntity book = mysqldb.findById(id).orElse(null);
+        if (book == null) {
+            System.out.println("book is null:" + id);
+        }
+        return book;
     }
 
 

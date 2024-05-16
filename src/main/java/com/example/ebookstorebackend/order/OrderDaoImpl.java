@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,21 +54,21 @@ public class OrderDaoImpl implements OrderDao {
 
     public List<OrderEntity> filterByBookContains(List<OrderEntity> orders, String keyword) {
         List<BookEntity> books = bookRepo.findByTitleContaining(keyword);
-        if (books == null)
-            return orders;
+        if (books == null || books.isEmpty())
+            return new ArrayList<>();
         Set<BookEntity> bookSet = new HashSet<>(books);
+        List<OrderEntity> ordersCopy = new ArrayList<>();
         for (OrderEntity order : orders) {
             boolean contains = false;
             for (OrderItemEntity item : order.getOrderItems()) {
                 if (bookSet.contains(item.getBook())) {
                     contains = true;
+                    ordersCopy.add(order);
                     break;
                 }
             }
-            if (!contains)
-                orders.remove(order);
         }
-        return orders;
+        return ordersCopy;
     }
 
     @Override
@@ -93,8 +94,8 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public List<OrderEntity> getOnesOrdersByTimeRange(String start, String end, Long userId) {
-        Timestamp endTime = null;
-        Timestamp startTime = null;
+        Timestamp endTime;
+        Timestamp startTime;
         try {
             startTime = start == null ? null : Timestamp.valueOf(start);
             endTime = end == null ? null : Timestamp.valueOf(end);

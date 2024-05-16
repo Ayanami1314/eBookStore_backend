@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface OrderRepo extends ListCrudRepository<OrderEntity, Long> {
-    public List<OrderEntity> findAll();
+    List<OrderEntity> findAll();
 
     @Query("SELECT o FROM OrderEntity o WHERE o.createdAt BETWEEN ?1 AND ?2")
     List<OrderEntity> findByOrderTimeBetween(Timestamp start, Timestamp end);

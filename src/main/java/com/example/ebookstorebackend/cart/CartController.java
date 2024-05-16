@@ -43,7 +43,7 @@ public class CartController {
     public CommonResponse<Object> updateItemQuantity(@PathVariable Long id, @RequestParam(name = "number") int quantity, HttpSession session) {
         System.out.println("updateItemQuantity: " + id + " " + quantity);
         if (quantity <= 0) {
-            return new CommonResponse<Object>("Quantity must be greater than 0", new Object(), false);
+            return new CommonResponse<>("Quantity must be greater than 0", new Object(), false);
         }
         boolean success = cartService.updateCartItem(id, quantity, session);
         var response = new CommonResponse<>();
@@ -55,11 +55,11 @@ public class CartController {
 
     @DeleteMapping("/api/cart/{id}")
     public CommonResponse<Object> removeCartItem(@PathVariable Long id, HttpSession session) {
-        cartService.removeCartItem(id, session);
+        boolean success = cartService.removeCartItem(id, session, true);
         var response = new CommonResponse<>();
         response.data = new Object();
-        response.ok = true;
-        response.message = "Item removed from cart";
+        response.ok = success;
+        response.message = success ? "Item removed from cart" : "Failed to remove item from cart";
         return response;
     }
 

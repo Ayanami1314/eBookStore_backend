@@ -10,9 +10,9 @@ import java.util.List;
 
 
 public interface BookRepo extends JpaRepository<BookEntity, Long>, PagingAndSortingRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity> {
-    public Page<BookEntity> findByTitleContaining(String keyword, Pageable pageable);
+    Page<BookEntity> findByTitleContaining(String keyword, Pageable pageable);
 
-    public Page<BookEntity> findAll(Pageable pageable);
+    Page<BookEntity> findAll(Pageable pageable);
 
-    public List<BookEntity> findByTitleContaining(String keyword);
+    List<BookEntity> findByTitleContaining(String keyword);
 }

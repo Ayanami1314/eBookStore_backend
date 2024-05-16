@@ -17,16 +17,16 @@ public class CartDao {
     @Autowired
     private CartRepo cartRepo;
     @Autowired
-    private UserServiceImpl userServiceImpl;
+    private UserServiceImpl userService;
     @Autowired
-    private OrderItemDaoImpl orderItemDaoImpl;
+    private OrderItemDaoImpl orderItemDao;
 
     public CartEntity getCart(Long cartId) {
         return cartRepo.findById(cartId).orElse(null);
     }
 
     public CartEntity getCart(HttpSession session) {
-        var user = userServiceImpl.getCurUser(session);
+        var user = userService.getCurUser(session);
         if (user == null) {
             System.out.println("Cannot find the cart: current user is null");
             return null;
@@ -63,7 +63,7 @@ public class CartDao {
     }
 
     public CartEntity createCart(HttpSession session) {
-        UserPublicEntity user = userServiceImpl.getCurUser(session);
+        UserPublicEntity user = userService.getCurUser(session);
         if (user == null) {
             System.out.println("Cannot create cart: current user is null");
             return null;
@@ -89,17 +89,22 @@ public class CartDao {
         return true;
     }
 
-    public boolean removeCartItem(Long orderItemId, HttpSession session) {
+    public boolean removeCartItem(Long orderItemId, HttpSession session, boolean delete) {
         CartEntity cart = getCart(session);
         if (cart == null) {
             System.out.println("Cannot remove item from cart: cart does not exist");
             return false;
         }
         cart.getOrderItems().removeIf(orderItem -> orderItem.getId().equals(orderItemId));
+
+        OrderItemEntity originOrderItem = orderItemDao.getOrderItem(orderItemId);
+        if (delete) {
+            orderItemDao.deleteOrderItem(orderItemId);
+        } else {
+            originOrderItem.setCart(null);
+            orderItemDao.updateOrderItem(originOrderItem);
+        }
         cartRepo.save(cart);
-        OrderItemEntity originOrderItem = orderItemDaoImpl.getOrderItem(orderItemId);
-        originOrderItem.setCart(null);
-        orderItemDaoImpl.updateOrderItem(originOrderItem);
         return true;
     }
 
@@ -112,7 +117,7 @@ public class CartDao {
         for (OrderItemEntity orderItem : cart.getOrderItems()) {
             if (orderItem.getId().equals(orderItemId)) {
                 orderItem.setQuantity(quantity);
-                orderItemDaoImpl.updateOrderItem(orderItem);
+                orderItemDao.updateOrderItem(orderItem);
                 cartRepo.save(cart);
                 return true;
             }

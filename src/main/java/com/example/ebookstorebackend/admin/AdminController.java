@@ -33,18 +33,18 @@ public class AdminController {
     @Autowired
     private OrderService orderService;
 
-    public boolean checkAdmin(HttpSession session) {
+    public boolean isAdmin(HttpSession session) {
         var userPublic = userService.getCurUser(session);
         if (userPublic == null) {
-            return false;
+            return true;
         }
-        Long userId = userPublic.getId();
-        return userService.isAdmin(userPublic.getUsername());
+//        Long userId = userPublic.getId();
+        return !userService.isAdmin(userPublic.getUsername());
     }
 
     @DeleteMapping("/api/admin/book/{id}")
     public CommonResponse<Object> removeBook(@PathVariable Long id, HttpSession session) {
-        if (!checkAdmin(session)) {
+        if (isAdmin(session)) {
             var response = new CommonResponse<>();
             response.ok = false;
             response.message = "You are not an admin";
@@ -60,20 +60,23 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/users")
-    public List<UserPublicEntity> getUsers(@RequestParam String keyword, HttpSession session) {
-        if (!checkAdmin(session)) {
+    public List<UserPublicEntity> getUsers(@RequestParam(required = false) String keyword, HttpSession session) {
+        if (isAdmin(session)) {
             return new ArrayList<>();
+        }
+        if (keyword == null) {
+            return userService.getAllUsers();
         }
         return userService.searchUsers(keyword);
     }
 
     @GetMapping("/api/admin/analysis/users")
-    public List<AdminDTO.UserAnalysis> getUserAnalysis(@RequestParam String start, @RequestParam String end, @RequestParam(name = "keyword") String user_keyword, HttpSession session) {
-        if (!checkAdmin(session)) {
+    public List<AdminDTO.UserAnalysis> getUserAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam(name = "keyword") String user_keyword, HttpSession session) {
+        if (isAdmin(session)) {
             return new ArrayList<>();
         }
         List<UserPublicEntity> allUsers = userService.searchUsers(user_keyword);
-        List<AdminDTO.UserAnalysis> response = new ArrayList<AdminDTO.UserAnalysis>();
+        List<AdminDTO.UserAnalysis> response = new ArrayList<>();
         for (UserPublicEntity user : allUsers) {
             List<Integer> orderCosts = orderService.searchOnesOrdersByTimeRange(start, end, "", user.getId()).stream()
                     .map(OrderEntity::getTotalCost)
@@ -86,7 +89,7 @@ public class AdminController {
         return response;
     }
 
-    static class BookAnalysis {
+    public static class BookAnalysis {
         public BookEntity book;
         @JsonProperty("total_sales")
         public int totalSales;
@@ -95,8 +98,8 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/analysis/books")
-    public List<BookAnalysis> getBookAnalysis(@RequestParam String start, @RequestParam String end, @RequestParam String keyword, HttpSession session) {
-        if (!checkAdmin(session)) {
+    public List<BookAnalysis> getBookAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword, HttpSession session) {
+        if (isAdmin(session)) {
             return new ArrayList<>();
         }
         if (!isValidRange(start, end))
@@ -131,7 +134,7 @@ public class AdminController {
 
     @PostMapping("/api/admin/book")
     public CommonResponse<Object> addBook(@RequestBody BookEntity newBook, HttpSession session) {
-        if (!checkAdmin(session)) {
+        if (isAdmin(session)) {
             var response = new CommonResponse<>();
             response.ok = false;
             response.message = "You are not an admin";
@@ -148,7 +151,7 @@ public class AdminController {
 
     @PutMapping("/api/admin/book/{id}")
     public CommonResponse<Object> replaceBook(@PathVariable Long id, @RequestBody BookEntity newBook, HttpSession session) {
-        if (!checkAdmin(session)) {
+        if (isAdmin(session)) {
             var response = new CommonResponse<>();
             response.ok = false;
             response.message = "You are not an admin";
@@ -164,8 +167,8 @@ public class AdminController {
     }
 
     @PutMapping("/api/admin/user/changeban/{id}")
-    public CommonResponse<Object> changeBan(@PathVariable Long id, @RequestBody Boolean ban, HttpSession session) {
-        if (!checkAdmin(session)) {
+    public CommonResponse<Object> changeBan(@PathVariable Long id, @RequestParam boolean ban, HttpSession session) {
+        if (isAdmin(session)) {
             var response = new CommonResponse<>();
             response.ok = false;
             response.message = "You are not an admin";
@@ -192,8 +195,8 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/orders")
-    public List<OrderEntity> searchOrders(@RequestParam String start, @RequestParam String end, @RequestParam String keyword, HttpSession session) {
-        if (!checkAdmin(session)) {
+    public List<OrderEntity> searchOrders(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword, HttpSession session) {
+        if (isAdmin(session)) {
             return new ArrayList<>();
         }
         return orderService.searchOrdersByTimeRange(start, end, keyword);
@@ -201,7 +204,7 @@ public class AdminController {
 
     @GetMapping
     public List<UserPublicEntity> getAllUsers(HttpSession session) {
-        if (!checkAdmin(session)) {
+        if (isAdmin(session)) {
             System.out.println("You are not an admin");
             return new ArrayList<>();
         }

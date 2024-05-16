@@ -48,8 +48,8 @@ public class CartService {
         cartDao.save(cart);
     }
 
-    public void removeCartItem(Long cartItemId, HttpSession session) {
-        cartDao.removeCartItem(cartItemId, session);
+    public boolean removeCartItem(Long cartItemId, HttpSession session, boolean delete) {
+        return cartDao.removeCartItem(cartItemId, session, delete);
     }
 
     public boolean updateCartItem(Long cartItemId, int quantity, HttpSession session) {

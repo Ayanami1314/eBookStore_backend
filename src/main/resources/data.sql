@@ -4,10 +4,16 @@ INSERT INTO Userprivacys (username, password, role)
 VALUES ('root', 'password', 'admin');
 INSERT INTO Userpublics (username, userprivacy_id)
 VALUES ('root', (SELECT id FROM UserPrivacys WHERE username = 'root'));
+INSERT INTO Userprivacys (username, password, role)
+VALUES ('user', 'password', 'user');
+INSERT INTO Userpublics (username, userprivacy_id)
+VALUES ('user', (SELECT id FROM UserPrivacys WHERE username = 'user'));
 
 -- 插入到cart表
-INSERT INTO Carts (user_id, number)
-VALUES ((SELECT id FROM UserPublics WHERE username = 'root'),  1);
+INSERT INTO Carts (user_id)
+VALUES ((SELECT id FROM UserPublics WHERE username = 'root'));
+INSERT INTO Carts (user_id)
+VALUES ((SELECT id FROM UserPublics WHERE username = 'user'));
 
 
 

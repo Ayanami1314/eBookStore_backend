@@ -4,6 +4,7 @@ package com.example.ebookstorebackend.user;
 import com.example.ebookstorebackend.cart.CartEntity;
 import com.example.ebookstorebackend.utils.Hash;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,7 +32,7 @@ public class UserPublicEntity {
     private CartEntity cart;
     @Enumerated(EnumType.STRING)
     private Status status = Status.normal;
-    
+
     public enum Status {
         banned, normal
     }
@@ -39,6 +40,7 @@ public class UserPublicEntity {
     private String email;
     private String headImg;
     private String phone;
+    @JsonProperty("nickname")
     private String username;
     private String address;
     private String firstName;

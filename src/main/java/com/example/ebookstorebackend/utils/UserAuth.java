@@ -1,6 +1,6 @@
 package com.example.ebookstorebackend.utils;
 
-import com.example.ebookstorebackend.user.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserPublicEntity;
 import jakarta.servlet.http.HttpSession;
 
 public class UserAuth {

@@ -85,17 +85,28 @@ CREATE TABLE IF NOT EXISTS OrderItems
     book_id  INT,
     number   INT,
     order_id INT,
-    cart_id  INT,
-    CONSTRAINT fk_orderItem_cart_id
-        FOREIGN KEY (cart_id) REFERENCES Carts (id)
-            ON DELETE CASCADE
-            ON UPDATE RESTRICT,
     CONSTRAINT fk_orderItem_book_id
         FOREIGN KEY (book_id) REFERENCES books (id)
             ON DELETE CASCADE
             ON UPDATE RESTRICT,
     CONSTRAINT fk_orderItem_order_id
         FOREIGN KEY (order_id) REFERENCES `Orders` (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
+);
+# 分离cartItem和orderItem以减轻orderItem子表压力
+CREATE TABLE IF NOT EXISTS CartItems
+(
+    id      INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    number  INT,
+    cart_id INT,
+    CONSTRAINT fk_cartItem_cart_id
+        FOREIGN KEY (cart_id) REFERENCES Carts (id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT,
+    CONSTRAINT fk_cartItem_book_id
+        FOREIGN KEY (book_id) REFERENCES books (id)
             ON DELETE CASCADE
             ON UPDATE RESTRICT
 );

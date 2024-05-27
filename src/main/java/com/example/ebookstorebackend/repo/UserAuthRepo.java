@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
@@ -13,14 +14,20 @@ public interface UserAuthRepo extends CrudRepository<UserAuthEntity, Long> {
     boolean existsByUsernameAndPassword(String username, String password);
 
 
+    @Transactional
     @Modifying
     @Query("UPDATE UserAuthEntity u SET u.password = ?3 WHERE u.username = ?1 AND u.password = ?2")
     void updatePasswordByUserName(String username, String oldpassword, String password);
 
+    @Transactional
+    @Modifying
     void deleteUserByUsername(String username);
 
+    @Transactional
+    @Modifying
     void deleteUserById(Long id);
 
+    @Transactional
     @Modifying
     @Query("UPDATE UserAuthEntity u SET u.username = ?2 WHERE u.id = ?1")
     void updateUserNameById(Long id, String username);

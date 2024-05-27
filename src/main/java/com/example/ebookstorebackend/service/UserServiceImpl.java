@@ -80,6 +80,9 @@ public class UserServiceImpl implements UserService {
         try {
             userDao.changePassword(username, oldpassword, password);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("username:" + username);
+            System.out.println("oldpassword:" + oldpassword);
             CommonResponse<Object> response = new CommonResponse<>();
             response.ok = false;
             response.message = "Password change failed";

@@ -12,4 +12,8 @@ public class UserDTO {
         public String password;
     }
 
+    static public class PasswordChangeRequest {
+        public String oldPassword;
+        public String newPassword;
+    }
 }

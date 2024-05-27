@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @PutMapping("/api/user/me/password")
-    public CommonResponse<Object> changePassword(@RequestBody String oldpassword, @RequestBody String password, HttpSession session) {
+    public CommonResponse<Object> changePassword(@RequestBody UserDTO.PasswordChangeRequest request, HttpSession session) {
         String username = userService.getCurUser(session).getUsername();
         var response = new CommonResponse<>();
         if (username == null) {
@@ -64,7 +64,7 @@ public class UserController {
             response.data = new Object();
             return response;
         }
-        return userService.changePassword(username, oldpassword, password);
+        return userService.changePassword(username, request.oldPassword, request.newPassword);
     }
 
     @PutMapping("/api/logout")

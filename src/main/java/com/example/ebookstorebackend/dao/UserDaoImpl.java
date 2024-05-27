@@ -1,10 +1,10 @@
 package com.example.ebookstorebackend.dao;
 
-import com.example.ebookstorebackend.entity.UserPrivacyEntity;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserAuthEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import com.example.ebookstorebackend.exception.UserNotFoundException;
-import com.example.ebookstorebackend.repo.UserPrivacyRepo;
-import com.example.ebookstorebackend.repo.UserPublicRepo;
+import com.example.ebookstorebackend.repo.UserAuthRepo;
+import com.example.ebookstorebackend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,53 +14,50 @@ import java.util.List;
 public class UserDaoImpl implements UserDao {
     // TODO: 对于Privacy实体，进行哈希加密处理
     @Autowired
-    private UserPublicRepo userPublicRepo;
+    private UserRepo userRepo;
     @Autowired
-    private UserPrivacyRepo userPrivacyRepo;
+    private UserAuthRepo userAuthRepo;
 
     @Override
     public boolean isUserExist(String username) {
-        return userPublicRepo.findByUsername(username).orElse(null) != null;
+        return userRepo.findByUsername(username).orElse(null) != null;
     }
 
     @Override
     public boolean isVerified(String username, String password) {
-        return userPrivacyRepo.findByUsernameAndPassword(username, password) != null;
+        // FIXME
+        return userAuthRepo.existsByUsernameAndPassword(username, password);
     }
 
     @Override
     public boolean isAdmin(String username) {
-        var user = userPublicRepo.findByUsername(username);
+        var user = userRepo.findByUsername(username);
         return user.isPresent() && user.get().isAdministrator();
     }
 
     @Override
     public boolean isUser(String username) {
-        var user = userPublicRepo.findByUsername(username);
+        var user = userRepo.findByUsername(username);
         return user.isPresent() && user.get().isUser();
     }
 
     @Override
-    public void addUser(String username, String password, UserPrivacyEntity.Role role) {
-        var user = new UserPrivacyEntity();
+    public void addUser(String username, String password, UserEntity.Role role) {
         // TODO: 强hash加密,非明文密码
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setRole(role);
-        userPrivacyRepo.save(user);
-        var userPublic = new UserPublicEntity();
-        // 设置mapping
-        userPublic.setUserprivacy(user);
-        userPublic.setUsername(username);
-        user.setUserPublicEntity(userPublic);
-
-        userPublicRepo.save(userPublic); // HINT: 由于cascade, 会自动保存userPrivacy
+        UserEntity newUser = new UserEntity();
+        newUser.setUsername(username);
+        newUser.setRole(role);
+        UserAuthEntity newUserAuth = new UserAuthEntity();
+        newUserAuth.setUsername(username);
+        newUserAuth.setPassword(password);
+        newUserAuth.setUserEntity(newUser);
+        userAuthRepo.save(newUserAuth);  // 级联保存user
     }
 
     @Override
-    public UserPublicEntity getUser(String username) {
+    public UserEntity getUser(String username) {
         try {
-            return userPublicRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+            return userRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
@@ -69,47 +66,51 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void removeUser(String username) {
-        userPublicRepo.delete(userPublicRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username)));
+        userRepo.delete(userRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username)));
     }
 
     @Override
-    public void updateUser(UserPublicEntity newUser, String username) {
-        userPublicRepo.findByUsername(username).map(userPublicEntity -> {
-            userPublicEntity.setAll(newUser);
-            return userPublicRepo.save(userPublicEntity);
+    public void updateUser(UserEntity newUser, String username) {
+        userRepo.findByUsername(username).map(userPublicEntity -> {
+            userPublicEntity = newUser;
+            return userRepo.save(userPublicEntity);
         }).orElseThrow(() -> new UserNotFoundException(username));
     }
 
     @Override
     public void setRole(String username, String role) {
-        UserPrivacyEntity userPrivacy = userPrivacyRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-        userPrivacy.setRole(UserPrivacyEntity.Role.valueOf(role));
-        userPrivacyRepo.save(userPrivacy);
+        userRepo.findByUsername(username).map(userPublicEntity -> {
+            userPublicEntity.setRole(UserEntity.Role.valueOf(role));
+            return userRepo.save(userPublicEntity);
+        }).orElseThrow(() -> new UserNotFoundException(username));
     }
 
     @Override
-    public void changePassword(String username, String password) {
-        UserPrivacyEntity userPrivacy = userPrivacyRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-        userPrivacy.setPassword(password);
-        userPrivacyRepo.save(userPrivacy);
+    public void changePassword(String username, String oldpassword, String password) throws Exception {
+        boolean verified = isVerified(username, oldpassword);
+        if (verified) {
+            userAuthRepo.updatePasswordByUserName(username, oldpassword, password);
+        } else {
+            throw new Exception("Password is not correct.");
+        }
     }
 
     @Override
-    public List<UserPublicEntity> getUsers() {
-        return userPublicRepo.findAll();
+    public List<UserEntity> getUsers() {
+        return userRepo.findAll();
     }
 
     @Override
-    public List<UserPublicEntity> searchUsers(String keyword) {
-        return userPublicRepo.findByUsernameContaining(keyword);
+    public List<UserEntity> searchUsers(String keyword) {
+        return userRepo.findByUsernameContaining(keyword);
     }
 
     @Override
-    public boolean changeUserStatus(String username, UserPublicEntity.Status status) {
+    public boolean changeUserStatus(String username, UserEntity.status status) {
         try {
-            UserPublicEntity userPublicEntity = userPublicRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-            userPublicEntity.setStatus(status);
-            userPublicRepo.save(userPublicEntity);
+            UserEntity userEntity = userRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+            userEntity.setStatus(status);
+            userRepo.save(userEntity);
             return true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -118,9 +119,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public UserPublicEntity getUser(Long id) {
+    public UserEntity getUser(Long id) {
         try {
-            return userPublicRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id.toString()));
+            return userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id.toString()));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;

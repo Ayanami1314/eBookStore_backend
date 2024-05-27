@@ -2,7 +2,7 @@ package com.example.ebookstorebackend.dao;
 
 import com.example.ebookstorebackend.entity.CartEntity;
 import com.example.ebookstorebackend.entity.CartItemEntity;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import com.example.ebookstorebackend.repo.CartRepo;
 import com.example.ebookstorebackend.service.UserService;
 import com.example.ebookstorebackend.utils.UserAuth;
@@ -64,7 +64,7 @@ public class CartDao {
     }
 
     public CartEntity createCart(HttpSession session) {
-        UserPublicEntity user = userService.getCurUser(session);
+        UserEntity user = userService.getCurUser(session);
         if (user == null) {
             System.out.println("Cannot create cart: current user is null");
             return null;

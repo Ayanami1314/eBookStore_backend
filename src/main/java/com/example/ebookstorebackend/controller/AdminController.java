@@ -5,12 +5,11 @@ import com.example.ebookstorebackend.dto.CommonResponse;
 import com.example.ebookstorebackend.entity.BookEntity;
 import com.example.ebookstorebackend.entity.OrderEntity;
 import com.example.ebookstorebackend.entity.OrderItemEntity;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import com.example.ebookstorebackend.service.BookService;
 import com.example.ebookstorebackend.service.OrderService;
 import com.example.ebookstorebackend.service.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,24 +27,10 @@ public class AdminController {
     @Autowired
     private OrderService orderService;
 
-    public boolean isAdmin(HttpSession session) {
-        var userPublic = userService.getCurUser(session);
-        if (userPublic == null) {
-            return true;
-        }
-//        Long userId = userPublic.getId();
-        return !userService.isAdmin(userPublic.getUsername());
-    }
+    // HINT: 权限验证和拦截在interceptor包中, 对/api/admin/**路径进行拦截
 
     @DeleteMapping("/api/admin/book/{id}")
-    public CommonResponse<Object> removeBook(@PathVariable Long id, HttpSession session) {
-        if (isAdmin(session)) {
-            var response = new CommonResponse<>();
-            response.ok = false;
-            response.message = "You are not an admin";
-            response.data = new Object();
-            return response;
-        }
+    public CommonResponse<Object> removeBook(@PathVariable Long id) {
         bookService.removeBook(id);
         var res = new CommonResponse<>();
         res.ok = true;
@@ -55,10 +40,7 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/users")
-    public List<UserPublicEntity> getUsers(@RequestParam(required = false) String keyword, HttpSession session) {
-        if (isAdmin(session)) {
-            return new ArrayList<>();
-        }
+    public List<UserEntity> getUsers(@RequestParam(required = false) String keyword) {
         if (keyword == null) {
             return userService.getAllUsers();
         }
@@ -66,13 +48,10 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/analysis/users")
-    public List<AdminDTO.UserAnalysis> getUserAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam(name = "keyword") String user_keyword, HttpSession session) {
-        if (isAdmin(session)) {
-            return new ArrayList<>();
-        }
-        List<UserPublicEntity> allUsers = userService.searchUsers(user_keyword);
+    public List<AdminDTO.UserAnalysis> getUserAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam(name = "keyword") String user_keyword) {
+        List<UserEntity> allUsers = userService.searchUsers(user_keyword);
         List<AdminDTO.UserAnalysis> response = new ArrayList<>();
-        for (UserPublicEntity user : allUsers) {
+        for (UserEntity user : allUsers) {
             List<Integer> orderCosts = orderService.searchOnesOrdersByTimeRange(start, end, "", user.getId()).stream()
                     .map(OrderEntity::getTotalCost)
                     .toList();
@@ -93,10 +72,7 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/analysis/books")
-    public List<BookAnalysis> getBookAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword, HttpSession session) {
-        if (isAdmin(session)) {
-            return new ArrayList<>();
-        }
+    public List<BookAnalysis> getBookAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword) {
         if (!isValidRange(start, end))
             return new ArrayList<>();
         List<OrderEntity> orders = orderService.searchOrdersByTimeRange(start, end, keyword);
@@ -128,48 +104,27 @@ public class AdminController {
     }
 
     @PostMapping("/api/admin/book")
-    public CommonResponse<Object> addBook(@RequestBody BookEntity newBook, HttpSession session) {
-        if (isAdmin(session)) {
-            var response = new CommonResponse<>();
-            response.ok = false;
-            response.message = "You are not an admin";
-            response.data = new Object();
-            return response;
-        }
-        bookService.addBook(newBook);
+    public CommonResponse<Object> addBook(@RequestBody BookEntity newBook) {
+        BookEntity data = bookService.addBook(newBook);
         var res = new CommonResponse<>();
         res.ok = true;
         res.message = "Book added";
-        res.data = new Object();
+        res.data = data;
         return res;
     }
 
     @PutMapping("/api/admin/book/{id}")
-    public CommonResponse<Object> replaceBook(@PathVariable Long id, @RequestBody BookEntity newBook, HttpSession session) {
-        if (isAdmin(session)) {
-            var response = new CommonResponse<>();
-            response.ok = false;
-            response.message = "You are not an admin";
-            response.data = new Object();
-            return response;
-        }
-        bookService.replaceBook(newBook, id);
+    public CommonResponse<Object> replaceBook(@PathVariable Long id, @RequestBody BookEntity newBook) {
+        var data = bookService.replaceBook(newBook, id);
         var res = new CommonResponse<>();
         res.ok = true;
         res.message = "Book replaced";
-        res.data = new Object();
+        res.data = data;
         return res;
     }
 
     @PutMapping("/api/admin/user/changeban/{id}")
-    public CommonResponse<Object> changeBan(@PathVariable Long id, @RequestParam boolean ban, HttpSession session) {
-        if (isAdmin(session)) {
-            var response = new CommonResponse<>();
-            response.ok = false;
-            response.message = "You are not an admin";
-            response.data = new Object();
-            return response;
-        }
+    public CommonResponse<Object> changeBan(@PathVariable Long id, @RequestParam boolean ban) {
         var response = new CommonResponse<>();
         var user = userService.getUser(id);
         if (user == null) {
@@ -178,7 +133,7 @@ public class AdminController {
             response.data = new Object();
             return response;
         }
-        if (userService.changeUserStatus(user.getUsername(), ban ? UserPublicEntity.Status.banned : UserPublicEntity.Status.normal)) {
+        if (userService.changeUserStatus(user.getUsername(), ban ? UserEntity.status.banned : UserEntity.status.normal)) {
             response.ok = true;
             response.message = "Change ban successful";
         } else {
@@ -190,19 +145,12 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/orders")
-    public List<OrderEntity> searchOrders(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword, HttpSession session) {
-        if (isAdmin(session)) {
-            return new ArrayList<>();
-        }
+    public List<OrderEntity> searchOrders(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword) {
         return orderService.searchOrdersByTimeRange(start, end, keyword);
     }
 
     @GetMapping
-    public List<UserPublicEntity> getAllUsers(HttpSession session) {
-        if (isAdmin(session)) {
-            System.out.println("You are not an admin");
-            return new ArrayList<>();
-        }
+    public List<UserEntity> getAllUsers() {
         return userService.getAllUsers();
     }
 }

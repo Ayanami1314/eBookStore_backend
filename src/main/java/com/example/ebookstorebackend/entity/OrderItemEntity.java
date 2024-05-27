@@ -1,18 +1,17 @@
 package com.example.ebookstorebackend.entity;
 
-import com.example.ebookstorebackend.utils.Hash;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "OrderItems")
+@ToString(exclude = {"order"})
+@EqualsAndHashCode(exclude = "order")
 public class OrderItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,14 +32,6 @@ public class OrderItemEntity {
     @JsonIgnore
     private OrderEntity order; // HINT: add jsonignore to avoid recursive call
 
-    @Override
-    public String toString() {
-        return "OrderItemEntity{" +
-                "id=" + id +
-                ", book=" + book.getTitle() +
-                ", quantity=" + quantity +
-                '}';
-    }
 
     public OrderItemEntity(BookEntity book, int quantity) {
         this.book = book;
@@ -51,11 +42,6 @@ public class OrderItemEntity {
         this.book = book;
         this.quantity = quantity;
         this.order = order;
-    }
-
-    @Override
-    public int hashCode() {
-        return Hash.IDHashCode(id, "OrderItem" + book.getTitle());
     }
 
     public int getCost() {

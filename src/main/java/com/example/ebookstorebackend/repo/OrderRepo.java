@@ -19,12 +19,12 @@ public interface OrderRepo extends ListCrudRepository<OrderEntity, Long> {
     @Query("SELECT o FROM OrderEntity o WHERE o.createdAt < ?1")
     List<OrderEntity> findByTimeBefore(Timestamp end);
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt BETWEEN ?1 AND ?2 AND o.userPublic.id = ?3")
+    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt BETWEEN ?1 AND ?2 AND o.user.id = ?3")
     List<OrderEntity> findByOrderTimeBetweenAndUserName(Timestamp start, Timestamp end, Long userId);
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt > ?1 AND o.userPublic.id = ?2")
+    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt > ?1 AND o.user.id = ?2")
     List<OrderEntity> findByTimeAfterAndUserName(Timestamp start, Long userId);
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt < ?1 AND o.userPublic.id = ?2")
+    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt < ?1 AND o.user.id = ?2")
     List<OrderEntity> findByTimeBeforeAndUserName(Timestamp end, Long userId);
 }

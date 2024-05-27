@@ -27,7 +27,6 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public Page<BookEntity> findAllBooks(BookDTO.BookSearchParam params) {
-
         if (params.keyword == null || params.keyword.isEmpty()) {
             System.out.println("keyword is null");
             return mysqldb.findAll(PageRequest.of(params.getPageIndex(), params.getPageSize()));
@@ -36,19 +35,20 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
-    public void replaceBook(BookEntity newBook, Long id) {
+    public BookEntity replaceBook(BookEntity newBook, Long id) {
         mysqldb.findById(id).map(bookEntity -> {
-            bookEntity.setAll(newBook);
+            bookEntity = newBook;
             return mysqldb.save(bookEntity);
         }).orElseGet(() -> {
             newBook.setId(id);
             return mysqldb.save(newBook);
         });
+        return newBook;
     }
 
     @Override
-    public void addBook(BookEntity newBook) {
-        mysqldb.save(newBook);
+    public BookEntity addBook(BookEntity newBook) {
+        return mysqldb.save(newBook);
     }
 
     @Override

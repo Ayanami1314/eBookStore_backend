@@ -4,12 +4,15 @@
 # USE `ebookstore`;
 #  用mysql的时候取消注释
 # TODO: 奇怪的现象, springboot里面无法正确执行DROP
+
 DROP TABLE IF EXISTS `OrderItems`;
-DROP TABLE IF EXISTS `Carts`;
 DROP TABLE IF EXISTS `Orders`;
-DROP TABLE IF EXISTS `UserPublics`;
-DROP TABLE IF EXISTS `UserPrivacys`;
+DROP TABLE IF EXISTS `CartItems`;
+DROP TABLE IF EXISTS `Carts`;
 DROP TABLE IF EXISTS `Books`;
+DROP TABLE IF EXISTS `UserPrivacys`;
+DROP TABLE IF EXISTS `UserPublics`;
+
 # 注意外键约束
 #ON UPDATE RESTRICT 如果尝试更新引用的主键值，那么将禁止这个更新操作。换句话说，如果有其他表的外键引用了这个主键，那么不能修改这个主键的值。
 # ON DELETE CASCADE 这个约束表示，如果删除了引用的主键值，那么将删除所有引用该主键的外键记录。换句话说，如果你删除了一个表的记录，那么所有引用这个记录的主键的其他表的记录也将被删除。
@@ -19,37 +22,39 @@ CREATE TABLE IF NOT EXISTS Books
     title       VARCHAR(255) NOT NULL,
     author      VARCHAR(255) NOT NULL,
     price       INT          NOT NULL,
-    isbn        VARCHAR(17)  NOT NULL, # 13位isbn 5部分 == 4 '-'
+    isbn        CHAR(17)     NOT NULL, # 13位isbn 5部分 == 4 '-'
     description TEXT         NOT NULL,
     sales       INT          NOT NULL DEFAULT 0,
     cover       VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS UserPrivacys
-(
-    id       INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255)           NOT NULL UNIQUE,
-    password VARCHAR(255)           NOT NULL,
-    role     ENUM ('admin', 'user') NOT NULL DEFAULT 'user'
-);
+
 
 CREATE TABLE IF NOT EXISTS UserPublics
 (
-    id             INT PRIMARY KEY AUTO_INCREMENT,
-    firstName      VARCHAR(255),
-    lastName       VARCHAR(255),
-    address        VARCHAR(255),
-    city           VARCHAR(255),
-    state          VARCHAR(255),
-    phone          VARCHAR(255),
-    email          VARCHAR(255),
-    headImg        VARCHAR(255)              DEFAULT 'defaultUser.jpg',
-    username       VARCHAR(255) NOT NULL UNIQUE,
-    balance        DECIMAL(10, 2)            DEFAULT 0,
-    userprivacy_id INT UNIQUE   NOT NULL,
-    status         ENUM ('normal', 'banned') DEFAULT 'normal',
-    CONSTRAINT fk_userpublic_userprivacy
-        FOREIGN KEY (userprivacy_id) REFERENCES UserPrivacys (id)
+    id        INT PRIMARY KEY AUTO_INCREMENT,
+    firstName VARCHAR(255),
+    lastName  VARCHAR(255),
+    address   VARCHAR(255),
+    city      VARCHAR(255),
+    state     VARCHAR(255),
+    phone     CHAR(20),
+    email     VARCHAR(255),
+    headImg   VARCHAR(255)              DEFAULT 'defaultUser.jpg',
+    username  VARCHAR(255) NOT NULL UNIQUE,
+    balance   INT                       DEFAULT 0,
+    status    ENUM ('normal', 'banned') DEFAULT 'normal',
+    role      ENUM ('user', 'admin')    DEFAULT 'user'
+);
+
+CREATE TABLE IF NOT EXISTS UserPrivacys
+(
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    username      VARCHAR(255) NOT NULL UNIQUE,
+    password      VARCHAR(255) NOT NULL,
+    userpublic_id INT UNIQUE   NOT NULL,
+    CONSTRAINT fk_userprivacy_userpublic
+        FOREIGN KEY (userpublic_id) REFERENCES UserPublics (id)
             ON DELETE CASCADE
             ON UPDATE RESTRICT
 );
@@ -71,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `Orders`
     user_id   INT,
     receiver  VARCHAR(255),
     createdAt TIMESTAMP                                      DEFAULT CURRENT_TIMESTAMP,
-    tel       VARCHAR(255),
+    tel       CHAR(20),
     address   VARCHAR(255),
     status    ENUM ('unpaid', 'paid', 'shipped', 'received') DEFAULT 'unpaid',
     CONSTRAINT fk_order_user_id

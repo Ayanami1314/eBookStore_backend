@@ -1,8 +1,8 @@
 package com.example.ebookstorebackend.service;
 
+import com.example.ebookstorebackend.dao.BookDao;
 import com.example.ebookstorebackend.dto.BookDTO;
 import com.example.ebookstorebackend.entity.BookEntity;
-import com.example.ebookstorebackend.dao.BookDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -24,13 +24,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void addBook(BookEntity newBook) {
-        bookDao.addBook(newBook);
+    public BookEntity addBook(BookEntity newBook) {
+        return bookDao.addBook(newBook);
     }
 
     @Override
-    public void replaceBook(BookEntity newBook, Long id) {
-        bookDao.replaceBook(newBook, id);
+    public BookEntity replaceBook(BookEntity newBook, Long id) {
+        return bookDao.replaceBook(newBook, id);
     }
 
     @Override

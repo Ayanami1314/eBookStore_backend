@@ -1,12 +1,17 @@
 package com.example.ebookstorebackend.config;
 
+import com.example.ebookstorebackend.interceptor.AdminInterceptor;
+import com.example.ebookstorebackend.interceptor.UserInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 // HINT: 由于SameSite属性的影响(不是https开不了None),这里真跨域默认只有lax模式, 此模式下只有get能跨域
@@ -15,6 +20,11 @@ import org.springframework.web.filter.CorsFilter;
 public class Config {
     // HINT: allow empty beans(serialization feature), gen {}
     // HINT: simplify lazy loading
+    @Autowired
+    private AdminInterceptor adminInterceptor;
+    @Autowired
+    private UserInterceptor userInterceptor;
+
     public static class JacksonConfig {
         @Bean
         public ObjectMapper objectMapper() {
@@ -40,6 +50,15 @@ public class Config {
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
             return new CorsFilter(source);
+        }
+    }
+
+    @Configuration
+    public class InterceptorConfig implements WebMvcConfigurer {
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+            registry.addInterceptor(adminInterceptor).addPathPatterns("/api/admin/**");
+            registry.addInterceptor(userInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/login");
         }
     }
 }

@@ -4,6 +4,7 @@ package com.example.ebookstorebackend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @Table(name = "Carts")
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(exclude = {"user", "cartItems"})
 public class CartEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,20 +24,16 @@ public class CartEntity {
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonIgnore
-    private UserPublicEntity userPublic;
+    private UserEntity user;
 
     // cart应该影响存在cart内的items
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "cart")
     private List<CartItemEntity> cartItems;
 
 
-    public CartEntity(UserPublicEntity userPublic) {
-        this.userPublic = userPublic;
+    public CartEntity(UserEntity user) {
+        this.user = user;
         this.cartItems = new ArrayList<>();
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
 }

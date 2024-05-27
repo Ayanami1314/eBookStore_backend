@@ -37,7 +37,7 @@ public class OrderController {
         newOrder.setTel(orderParam.getTel());
 
         var currentUser = userService.getCurUser(session);
-        newOrder.setUserPublic(currentUser);
+        newOrder.setUser(currentUser);
         var response = new CommonResponse<>();
         response.data = new Object();
         // validate

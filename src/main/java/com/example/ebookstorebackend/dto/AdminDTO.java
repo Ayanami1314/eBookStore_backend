@@ -1,6 +1,6 @@
 package com.example.ebookstorebackend.dto;
 
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,6 +9,6 @@ public class AdminDTO {
     @AllArgsConstructor
     static public class UserAnalysis {
         private int totalcost;
-        private UserPublicEntity user;
+        private UserEntity user;
     }
 }

@@ -1,14 +1,13 @@
 INSERT INTO Books (title, author, price, isbn, description, sales, cover)
 VALUES ('title', 'author', 1000, 'isbn', 'description', 0, 'https://img.tukuppt.com/png_preview/00/04/81/SYZxWQlAr9.jpg!/fw/780');
-INSERT INTO Userprivacys (username, password, role)
-VALUES ('root', 'password', 'admin');
-INSERT INTO Userpublics (username, userprivacy_id)
-VALUES ('root', (SELECT id FROM UserPrivacys WHERE username = 'root'));
-INSERT INTO Userprivacys (username, password, role)
-VALUES ('user', 'password', 'user');
-INSERT INTO Userpublics (username, userprivacy_id)
-VALUES ('user', (SELECT id FROM UserPrivacys WHERE username = 'user'));
-
+INSERT INTO UserPublics (username, role)
+VALUES ('root', 'admin');
+INSERT INTO UserPrivacys (username, password, userpublic_id)
+VALUES ('root', 'password', (SELECT id FROM UserPublics WHERE username = 'root'));
+INSERT INTO UserPublics (username, role)
+VALUES ('user', 'user');
+INSERT INTO UserPrivacys (username, password, userpublic_id)
+VALUES ('user', 'password', (SELECT id FROM UserPublics WHERE username = 'user'));
 -- 插入到cart表
 INSERT INTO Carts (user_id)
 VALUES ((SELECT id FROM UserPublics WHERE username = 'root'));

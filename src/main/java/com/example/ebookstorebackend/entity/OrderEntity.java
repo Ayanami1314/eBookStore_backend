@@ -5,18 +5,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 import java.util.List;
 
-import static com.example.ebookstorebackend.utils.Time.timeToString;
-
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "Orders")
+@ToString(exclude = {"user", "orderItems"})
+@EqualsAndHashCode(exclude = {"user", "orderItems"})
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +27,7 @@ public class OrderEntity {
     // order不应该影响user
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UserPublicEntity userPublic;
+    private UserEntity user;
 
     // order应该影响存在order内的items
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
@@ -47,19 +49,6 @@ public class OrderEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Override
-    public String toString() {
-        return "OrderEntity{" +
-                "id=" + id +
-                ", user=" + (userPublic == null ? "null" : userPublic.getUsername()) +
-                ", orderItemIds=" + (orderItems == null ? "null" : orderItems.stream().map(OrderItemEntity::getId).toList().toString()) +
-                ", receiver='" + receiver + '\'' +
-                ", address='" + address + '\'' +
-                ", tel='" + tel + '\'' +
-                ", createdAt=" + timeToString(createdAt) +
-                ", status=" + status +
-                '}';
-    }
 
     public void addOrderItem(OrderItemEntity orderItem) {
         if (orderItems == null)
@@ -68,10 +57,6 @@ public class OrderEntity {
         orderItems.add(orderItem);
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
 
     public int getTotalCost() {
         // TODO: opt: do this in sql

@@ -61,10 +61,8 @@ public class OrderDaoImpl implements OrderDao {
         Set<BookEntity> bookSet = new HashSet<>(books);
         List<OrderEntity> ordersCopy = new ArrayList<>();
         for (OrderEntity order : orders) {
-            boolean contains = false;
             for (OrderItemEntity item : order.getOrderItems()) {
                 if (bookSet.contains(item.getBook())) {
-                    contains = true;
                     ordersCopy.add(order);
                     break;
                 }

@@ -1,14 +1,13 @@
 package com.example.ebookstorebackend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 @Builder
 @Entity
 @Table(name = "Books") // HINT: @Entity 是一个 JPA 注释，用于使该对象准备好存储在基于 JPA 的数据存储中
@@ -24,23 +23,4 @@ public class BookEntity {
     private String cover; // 图像资源的url
     private int sales;
     private String isbn;
-
-    public void setAll(BookEntity bookEntity) {
-        this.title = bookEntity.title;
-        this.description = bookEntity.description;
-        this.author = bookEntity.author;
-        this.price = bookEntity.price;
-        this.cover = bookEntity.cover;
-        this.sales = bookEntity.sales;
-        this.isbn = bookEntity.isbn;
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
-
-    public boolean equals(BookEntity book) {
-        return this.id.equals(book.id);
-    }
 }

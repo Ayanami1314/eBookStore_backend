@@ -1,11 +1,11 @@
 package com.example.ebookstorebackend.utils;
 
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import jakarta.servlet.http.HttpSession;
 
 public class UserAuth {
     public static boolean hasLogin(HttpSession session) {
-        UserPublicEntity user = (UserPublicEntity) session.getAttribute("user");
+        UserEntity user = (UserEntity) session.getAttribute("user");
         return user != null;
     }
 }

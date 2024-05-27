@@ -1,9 +1,8 @@
 package com.example.ebookstorebackend.service;
 
-import com.example.ebookstorebackend.dto.CommonResponse;
 import com.example.ebookstorebackend.dao.UserDao;
-import com.example.ebookstorebackend.entity.UserPrivacyEntity;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.dto.CommonResponse;
+import com.example.ebookstorebackend.entity.UserEntity;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,19 +25,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserPublicEntity refreshUser(HttpSession session) {
-        UserPublicEntity user = (UserPublicEntity) session.getAttribute("user");
+    public UserEntity refreshUser(HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
         if (user == null) {
             System.out.println("Please Login again.");
             return null;
         }
-        UserPublicEntity newUser = userDao.getUser(user.getUsername());
+        UserEntity newUser = userDao.getUser(user.getUsername());
         session.setAttribute("user", newUser);
         return newUser;
     }
 
     @Override
-    public UserPublicEntity getCurUser(HttpSession session) {
+    public UserEntity getCurUser(HttpSession session) {
         return refreshUser(session);
     }
 
@@ -55,9 +54,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUser(String username, String password, String role) {
         if (role.equals("admin")) {
-            userDao.addUser(username, password, UserPrivacyEntity.Role.admin);
+            userDao.addUser(username, password, UserEntity.Role.admin);
         } else if (role.equals("user")) {
-            userDao.addUser(username, password, UserPrivacyEntity.Role.user);
+            userDao.addUser(username, password, UserEntity.Role.user);
         }
     }
 
@@ -67,7 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(UserPublicEntity newUser, String username) {
+    public void updateUser(UserEntity newUser, String username) {
         userDao.updateUser(newUser, username);
     }
 
@@ -77,9 +76,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommonResponse<Object> changePassword(String username, String password) {
+    public CommonResponse<Object> changePassword(String username, String oldpassword, String password) {
         try {
-            userDao.changePassword(username, password);
+            userDao.changePassword(username, oldpassword, password);
         } catch (Exception e) {
             CommonResponse<Object> response = new CommonResponse<>();
             response.ok = false;
@@ -93,27 +92,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserPublicEntity getUser(String username) {
+    public UserEntity getUser(String username) {
         return userDao.getUser(username);
     }
 
     @Override
-    public UserPublicEntity getUser(Long id) {
+    public UserEntity getUser(Long id) {
         return userDao.getUser(id);
     }
 
     @Override
-    public List<UserPublicEntity> getAllUsers() {
+    public List<UserEntity> getAllUsers() {
         return userDao.getUsers();
     }
 
     @Override
-    public List<UserPublicEntity> searchUsers(String keyword) {
+    public List<UserEntity> searchUsers(String keyword) {
         return userDao.searchUsers(keyword);
     }
 
     @Override
-    public boolean changeUserStatus(String username, UserPublicEntity.Status status) {
+    public boolean changeUserStatus(String username, UserEntity.status status) {
 
         return userDao.changeUserStatus(username, status);
     }

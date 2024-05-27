@@ -1,7 +1,7 @@
 package com.example.ebookstorebackend.service;
 
 import com.example.ebookstorebackend.dto.CommonResponse;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
@@ -11,9 +11,9 @@ public interface UserService {
 
     boolean isVerified(String username, String password);
 
-    UserPublicEntity refreshUser(HttpSession session);
+    UserEntity refreshUser(HttpSession session);
 
-    UserPublicEntity getCurUser(HttpSession session);
+    UserEntity getCurUser(HttpSession session);
 
     boolean isAdmin(String username);
 
@@ -23,19 +23,19 @@ public interface UserService {
 
     void removeUser(String username);
 
-    void updateUser(UserPublicEntity newUser, String username);
+    void updateUser(UserEntity newUser, String username);
 
     void setRole(String username, String role);
 
-    CommonResponse<Object> changePassword(String username, String password);
+    CommonResponse<Object> changePassword(String username, String oldpassword, String password);
 
-    UserPublicEntity getUser(String username);
+    UserEntity getUser(String username);
 
-    UserPublicEntity getUser(Long id);
+    UserEntity getUser(Long id);
 
-    List<UserPublicEntity> getAllUsers();
+    List<UserEntity> getAllUsers();
 
-    List<UserPublicEntity> searchUsers(String keyword);
+    List<UserEntity> searchUsers(String keyword);
 
-    boolean changeUserStatus(String username, UserPublicEntity.Status status);
+    boolean changeUserStatus(String username, UserEntity.status status);
 }

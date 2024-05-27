@@ -1,7 +1,6 @@
 package com.example.ebookstorebackend.dao;
 
-import com.example.ebookstorebackend.entity.UserPrivacyEntity;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 
 import java.util.List;
 
@@ -14,23 +13,23 @@ public interface UserDao {
 
     boolean isUser(String username);
 
-    void addUser(String username, String password, UserPrivacyEntity.Role role);
+    void addUser(String username, String password, UserEntity.Role role);
 
-    UserPublicEntity getUser(String username);
+    UserEntity getUser(String username);
 
-    UserPublicEntity getUser(Long id);
+    UserEntity getUser(Long id);
 
     void removeUser(String username);
 
-    void updateUser(UserPublicEntity newUser, String username);
+    void updateUser(UserEntity newUser, String username);
 
     void setRole(String username, String role);
 
-    void changePassword(String username, String password);
+    void changePassword(String username, String oldpassword, String password) throws Exception;
 
-    List<UserPublicEntity> getUsers();
+    List<UserEntity> getUsers();
 
-    List<UserPublicEntity> searchUsers(String keyword);
+    List<UserEntity> searchUsers(String keyword);
 
-    boolean changeUserStatus(String username, UserPublicEntity.Status status);
+    boolean changeUserStatus(String username, UserEntity.status status);
 }

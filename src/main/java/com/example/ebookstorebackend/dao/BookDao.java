@@ -9,9 +9,9 @@ public interface BookDao {
 
     Page<BookEntity> findAllBooks(BookDTO.BookSearchParam params);
 
-    void replaceBook(BookEntity newBook, Long id);
+    BookEntity replaceBook(BookEntity newBook, Long id);
 
-    void addBook(BookEntity newBook);
+    BookEntity addBook(BookEntity newBook);
 
     void removeBook(Long id);
 

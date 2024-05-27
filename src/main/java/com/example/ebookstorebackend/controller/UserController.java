@@ -3,13 +3,12 @@ package com.example.ebookstorebackend.controller;
 
 import com.example.ebookstorebackend.dto.CommonResponse;
 import com.example.ebookstorebackend.dto.UserDTO;
-import com.example.ebookstorebackend.entity.UserPublicEntity;
+import com.example.ebookstorebackend.entity.UserEntity;
 import com.example.ebookstorebackend.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-//@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 public class UserController {
     @Autowired
@@ -17,19 +16,19 @@ public class UserController {
 
 
     @PostMapping("/api/login")
-    public CommonResponse<UserPublicEntity> login(@RequestBody UserDTO.LoginRequest loginRequest, HttpSession session) {
+    public CommonResponse<UserEntity> login(@RequestBody UserDTO.LoginRequest loginRequest, HttpSession session) {
         var username = loginRequest.username;
         var password = loginRequest.password;
-        CommonResponse<UserPublicEntity> response = new CommonResponse<>();
+        CommonResponse<UserEntity> response = new CommonResponse<>();
         try {
             if (userService.isVerified(username, password)) {
                 response.ok = true;
                 response.message = "Login successful";
-                response.data = new UserPublicEntity();
+                response.data = userService.getUser(username);
             } else {
                 response.ok = false;
                 response.message = "Login failed";
-                response.data = new UserPublicEntity();
+                response.data = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,7 +41,7 @@ public class UserController {
 
     @GetMapping("/api/user/me")
     public UserDTO.UserResInfo me(HttpSession session) {
-        UserPublicEntity currentUser = (UserPublicEntity) session.getAttribute("user");
+        UserEntity currentUser = (UserEntity) session.getAttribute("user");
         if (currentUser == null) {
             return null;
         }
@@ -54,7 +53,7 @@ public class UserController {
     }
 
     @PutMapping("/api/user/me/password")
-    public CommonResponse<Object> changePassword(@RequestBody String password, HttpSession session) {
+    public CommonResponse<Object> changePassword(@RequestBody String oldpassword, @RequestBody String password, HttpSession session) {
         String username = userService.getCurUser(session).getUsername();
         var response = new CommonResponse<>();
         if (username == null) {
@@ -65,7 +64,7 @@ public class UserController {
             response.data = new Object();
             return response;
         }
-        return userService.changePassword(username, password);
+        return userService.changePassword(username, oldpassword, password);
     }
 
     @PutMapping("/api/logout")

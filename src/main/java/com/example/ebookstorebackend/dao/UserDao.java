@@ -1,5 +1,6 @@
 package com.example.ebookstorebackend.dao;
 
+import com.example.ebookstorebackend.entity.UserAuthEntity;
 import com.example.ebookstorebackend.entity.UserEntity;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface UserDao {
 
     boolean isUser(String username);
 
-    void addUser(String username, String password, UserEntity.Role role);
+    boolean addUser(UserAuthEntity userAuthEntity);
 
     UserEntity getUser(String username);
 

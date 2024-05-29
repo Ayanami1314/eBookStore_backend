@@ -1,18 +1,22 @@
 package com.example.ebookstorebackend.interceptor;
 
-import com.example.ebookstorebackend.entity.UserEntity;
+import com.example.ebookstorebackend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class UserInterceptor implements HandlerInterceptor {
+    @Autowired
+    private UserService userService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession();
-        var user = (UserEntity) session.getAttribute("user");
+        var user = userService.getCurUser(session);
         if (user == null) {
             response.sendRedirect("/api/login");
             return false;

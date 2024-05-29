@@ -48,7 +48,13 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public BookEntity addBook(BookEntity newBook) {
-        return mysqldb.save(newBook);
+        try {
+            mysqldb.save(newBook);
+            return newBook;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     @Override

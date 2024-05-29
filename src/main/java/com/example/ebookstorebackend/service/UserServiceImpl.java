@@ -2,6 +2,8 @@ package com.example.ebookstorebackend.service;
 
 import com.example.ebookstorebackend.dao.UserDao;
 import com.example.ebookstorebackend.dto.CommonResponse;
+import com.example.ebookstorebackend.dto.UserDTO;
+import com.example.ebookstorebackend.entity.UserAuthEntity;
 import com.example.ebookstorebackend.entity.UserEntity;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +28,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity refreshUser(HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("user");
+        Long userId = (Long) session.getAttribute("userId");
+        System.out.println("cur_userId: " + userId);
+        UserEntity user = userDao.getUser(userId);
         if (user == null) {
             System.out.println("Please Login again.");
             return null;
         }
-        UserEntity newUser = userDao.getUser(user.getUsername());
-        session.setAttribute("user", newUser);
-        return newUser;
+        return user;
     }
 
     @Override
@@ -52,12 +54,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(String username, String password, String role) {
+    public boolean addUser(UserDTO.RegisterRequest register, String role) {
+        var newUser = new UserEntity(register.username, register.email);
+        UserAuthEntity newUserAuth = new UserAuthEntity(register.username, register.password, newUser);
         if (role.equals("admin")) {
-            userDao.addUser(username, password, UserEntity.Role.admin);
+            return userDao.addUser(newUserAuth);
         } else if (role.equals("user")) {
-            userDao.addUser(username, password, UserEntity.Role.user);
+            return userDao.addUser(newUserAuth);
         }
+        return false;
     }
 
     @Override

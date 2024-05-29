@@ -13,7 +13,6 @@ public interface UserAuthRepo extends CrudRepository<UserAuthEntity, Long> {
     // HINT: 使用内置查询避免将隐私实体通过网络传输，只送回True/False, 不允许有方法返回UserAuthEntity
     boolean existsByUsernameAndPassword(String username, String password);
 
-
     @Transactional
     @Modifying
     @Query("UPDATE UserAuthEntity u SET u.password = ?3 WHERE u.username = ?1 AND u.password = ?2")

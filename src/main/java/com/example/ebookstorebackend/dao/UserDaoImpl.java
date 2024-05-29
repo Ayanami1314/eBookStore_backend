@@ -41,7 +41,7 @@ public class UserDaoImpl implements UserDao {
         return user.isPresent() && user.get().isUser();
     }
 
-    @Override
+
     public void addUser(String username, String password, UserEntity.Role role) {
         // TODO: 强hash加密,非明文密码
         UserEntity newUser = new UserEntity();
@@ -52,6 +52,15 @@ public class UserDaoImpl implements UserDao {
         newUserAuth.setPassword(password);
         newUserAuth.setUserEntity(newUser);
         userAuthRepo.save(newUserAuth);  // 级联保存user
+    }
+
+    @Override
+    public boolean addUser(UserAuthEntity userAuthEntity) {
+        if (userRepo.findByUsername(userAuthEntity.getUsername()).isPresent()) {
+            return false;
+        }
+        userAuthRepo.save(userAuthEntity);
+        return true;
     }
 
     @Override

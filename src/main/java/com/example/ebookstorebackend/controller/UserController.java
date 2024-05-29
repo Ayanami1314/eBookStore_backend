@@ -8,6 +8,7 @@ import com.example.ebookstorebackend.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class UserController {
@@ -22,9 +23,18 @@ public class UserController {
         CommonResponse<UserEntity> response = new CommonResponse<>();
         try {
             if (userService.isVerified(username, password)) {
+                var user = userService.getUser(username);
+                if (user.getStatus() == UserEntity.status.banned) {
+                    response.ok = false;
+                    response.message = "用户已被封禁，如有疑问请联系管理员";
+                    response.data = null;
+                    return response;
+                }
                 response.ok = true;
                 response.message = "Login successful";
                 response.data = userService.getUser(username);
+                session.setAttribute("userId", response.data.getId());
+                System.out.println("User " + username + ",id:" + response.data.getId() + " logged in");
             } else {
                 response.ok = false;
                 response.message = "Login failed";
@@ -33,23 +43,17 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        var userPublic = userService.getUser(username);
-        session.setAttribute("user", userPublic);
         return response;
     }
 
 
     @GetMapping("/api/user/me")
     public UserDTO.UserResInfo me(HttpSession session) {
-        UserEntity currentUser = (UserEntity) session.getAttribute("user");
+        UserEntity currentUser = userService.getCurUser(session);
         if (currentUser == null) {
             return null;
         }
-        UserDTO.UserResInfo userResInfo = new UserDTO.UserResInfo();
-        userResInfo.nickname = currentUser.getUsername();
-        userResInfo.balance = currentUser.getBalance().intValue();
-        userResInfo.id = currentUser.getId();
-        return userResInfo;
+        return new UserDTO.UserResInfo(currentUser);
     }
 
     @PutMapping("/api/user/me/password")
@@ -69,10 +73,83 @@ public class UserController {
 
     @PutMapping("/api/logout")
     public CommonResponse<Object> logout(HttpSession session) {
-        session.removeAttribute("user");
         var response = new CommonResponse<>();
         response.ok = true;
         response.message = "Logout successful";
+        response.data = new Object();
+        session.removeAttribute("userId");
+        return response;
+    }
+
+    // 注册普通用户
+    @PostMapping("/api/register")
+    public CommonResponse<Object> register(@RequestBody UserDTO.RegisterRequest request) {
+        boolean success = false;
+        try {
+            success = userService.addUser(request, "user");
+        } catch (Exception e) {
+            CommonResponse<Object> response = new CommonResponse<>();
+            response.ok = false;
+            response.message = "Register failed: " + e.getMessage();
+            response.data = new Object();
+            return response;
+        }
+        var response = new CommonResponse<>();
+        response.ok = success;
+        response.message = success ? "Register successful" : "Register failed";
+        response.data = new Object();
+        return response;
+    }
+
+    @PutMapping("/api/user/me/info")
+    public CommonResponse<Object> updateUserInfo(@RequestBody UserDTO.UserInformation userInformation, HttpSession session) {
+        UserEntity user = userService.getCurUser(session);
+        if (userInformation.name != null && !userInformation.name.equals(user.getUsername())) {
+            boolean exist = userService.isUserExist(userInformation.name);
+            if (exist) {
+                CommonResponse<Object> response = new CommonResponse<>();
+                response.ok = false;
+                response.message = "Username already exists";
+                response.data = new Object();
+                return response;
+            }
+        }
+        if (userInformation.avatar != null) {
+            String rpath = user.setUserImage(userInformation.avatar);
+            if (rpath == null) {
+                CommonResponse<Object> response = new CommonResponse<>();
+                response.ok = false;
+                response.message = "Update user information failed";
+                response.data = new Object();
+                return response;
+            }
+            session.setAttribute("avatar", rpath);
+        }
+
+        user.setNotes(userInformation.notes);
+        user.setEmail(userInformation.email);
+        user.setUsername(userInformation.name);
+        userService.updateUser(user, user.getUsername());
+        CommonResponse<Object> response = new CommonResponse<>();
+        response.ok = true;
+        response.message = "Update user information successful";
+        response.data = new Object();
+        return response;
+    }
+
+    @PostMapping("/api/user/me/avatar")
+    public CommonResponse<Object> updateAvatar(@RequestBody MultipartFile avatar, HttpSession session) {
+        UserEntity user = userService.getCurUser(session);
+        String rpath = user.setUserImage(avatar);
+        CommonResponse<Object> response = new CommonResponse<>();
+        if (rpath != null) {
+            session.setAttribute("avatar", rpath);
+            response.ok = true;
+            response.message = "Update user avatar successful";
+        } else {
+            response.ok = false;
+            response.message = "Update user avatar failed";
+        }
         response.data = new Object();
         return response;
     }

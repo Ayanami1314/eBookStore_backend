@@ -1,6 +1,7 @@
 package com.example.ebookstorebackend.service;
 
 import com.example.ebookstorebackend.dto.CommonResponse;
+import com.example.ebookstorebackend.dto.UserDTO;
 import com.example.ebookstorebackend.entity.UserEntity;
 import jakarta.servlet.http.HttpSession;
 
@@ -19,7 +20,7 @@ public interface UserService {
 
     boolean isUser(String username);
 
-    void addUser(String username, String password, String role);
+    boolean addUser(UserDTO.RegisterRequest register, String role);
 
     void removeUser(String username);
 

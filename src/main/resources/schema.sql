@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS UserPublics
     username  VARCHAR(255) NOT NULL UNIQUE,
     balance   INT                       DEFAULT 0,
     status    ENUM ('normal', 'banned') DEFAULT 'normal',
-    role      ENUM ('user', 'admin')    DEFAULT 'user'
+    role      ENUM ('user', 'admin')    DEFAULT 'user',
+    notes     TEXT
 );
 
 CREATE TABLE IF NOT EXISTS UserPrivacys

@@ -95,10 +95,16 @@ public class CartDao {
             System.out.println("Cannot remove item from cart: cart does not exist");
             return false;
         }
-        // 级联删除
-        cart.getCartItems().removeIf(cartItem -> cartItem.getId().equals(cartItemId));
-        cartRepo.save(cart);
-        return true;
+        try {
+            cart.getCartItems().removeIf(cartItem -> cartItem.getId().equals(cartItemId));
+            // 同时删除db中的cartItem
+            cartItemDao.deleteCartItem(cartItemId);
+            cartRepo.save(cart);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Cannot remove item from cart: item does not exist");
+            return false;
+        }
     }
 
     public boolean updateCartItem(Long cartItemId, int quantity, HttpSession session) {

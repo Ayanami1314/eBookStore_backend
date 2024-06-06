@@ -21,7 +21,7 @@ public class CartEntity {
     private Long id;
 
     // cart不应该影响user
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @OneToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonIgnore
     private UserEntity user;

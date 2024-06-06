@@ -25,7 +25,7 @@ public class OrderEntity {
     private Long id;
 
     // order不应该影响user
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
 

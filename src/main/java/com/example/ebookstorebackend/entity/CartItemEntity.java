@@ -18,8 +18,8 @@ public class CartItemEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 只有更新book操作会影响到cartItem，cartItem不会反向影响book，保持级联影响单向
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    // 只有更新book操作会影响到cartItem，cartItem不会反向影响book，保持级联影响单向，没有MERGE
+    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", referencedColumnName = "id")
     private BookEntity book;
 
@@ -27,7 +27,8 @@ public class CartItemEntity {
     @JsonProperty("number")
     private int quantity;
 
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    // HINT: 即使是空购物车，也不允许cartItem级联删除，应该保存cart级联到cartItem，不应该反过来
+    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", referencedColumnName = "id")
     @JsonIgnore
     private CartEntity cart; // HINT: add jsonignore to avoid recursive call

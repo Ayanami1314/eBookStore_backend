@@ -1,7 +1,10 @@
 package com.example.ebookstorebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,4 +26,15 @@ public class BookEntity {
     private String cover; // 图像资源的url
     private int sales;
     private String isbn;
+
+    // 不允许book更新时更新原有的订单，订单的价格始终应该是“当时的”书籍价格
+//    // HINT: 一个book对应多个orderItem，级联删除，更新，刷新，懒加载
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<OrderItemEntity> orderItems;
+    // book更新时应该更新购物车内的book信息，包括价格等
+    @JsonIgnore
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CartItemEntity> cartItems;
+
 }

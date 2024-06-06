@@ -1,20 +1,35 @@
 package com.example.ebookstorebackend.controller;
 
 
+import com.example.ebookstorebackend.dto.AnalysisDTO;
 import com.example.ebookstorebackend.dto.CommonResponse;
 import com.example.ebookstorebackend.dto.UserDTO;
+import com.example.ebookstorebackend.entity.BookEntity;
+import com.example.ebookstorebackend.entity.OrderEntity;
+import com.example.ebookstorebackend.entity.OrderItemEntity;
 import com.example.ebookstorebackend.entity.UserEntity;
+import com.example.ebookstorebackend.service.OrderService;
 import com.example.ebookstorebackend.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.example.ebookstorebackend.utils.Time.isValidRange;
+
 @RestController
 public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    OrderService orderService;
 
     @PostMapping("/api/login")
     public CommonResponse<UserEntity> login(@RequestBody UserDTO.LoginRequest loginRequest, HttpSession session) {
@@ -152,5 +167,21 @@ public class UserController {
         }
         response.data = new Object();
         return response;
+    }
+
+    @GetMapping("/api/user/me/analysis/books")
+    public List<AnalysisDTO.BookAnalysis> getBookAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword, HttpSession session) {
+        if (!isValidRange(start, end))
+            return new ArrayList<>();
+        List<OrderEntity> orders = orderService.searchMyOrdersByTimeRange(start, end, keyword, session);
+        // analysis for each book in different orders
+        Stream<OrderItemEntity> allItemsStream = orders.stream().flatMap(order -> order.getOrderItems().stream());
+
+        Map<BookEntity, AnalysisDTO.SaleAndPrice> bookStats = allItemsStream.collect(Collectors.groupingBy(OrderItemEntity::getBook,
+                Collectors.collectingAndThen(Collectors.toList(), items -> new AnalysisDTO.SaleAndPrice(
+                        items.stream().mapToInt(OrderItemEntity::getQuantity).sum(),
+                        items.stream().mapToInt(OrderItemEntity::getCost).sum()
+                ))));
+        return bookStats.entrySet().stream().map(entry -> new AnalysisDTO.BookAnalysis(entry.getKey(), entry.getValue().getSale(), entry.getValue().getPrice())).toList();
     }
 }

@@ -104,12 +104,12 @@ public class OrderDaoImpl implements OrderDao {
             return null;
         }
         if (endTime == null && startTime == null)
-            return orderRepo.findAll();
+            return orderRepo.findByUserId(userId);
         if (endTime == null)
-            return orderRepo.findByTimeAfterAndUserName(startTime, userId);
+            return orderRepo.findByTimeAfterAndUserId(startTime, userId);
         if (startTime == null)
-            return orderRepo.findByTimeBeforeAndUserName(endTime, userId);
-        return orderRepo.findByOrderTimeBetweenAndUserName(startTime, endTime, userId);
+            return orderRepo.findByTimeBeforeAndUserId(endTime, userId);
+        return orderRepo.findByOrderTimeBetweenAndUserId(startTime, endTime, userId);
     }
 
     @Override

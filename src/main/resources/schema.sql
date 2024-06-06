@@ -87,10 +87,11 @@ CREATE TABLE IF NOT EXISTS `Orders`
 );
 CREATE TABLE IF NOT EXISTS OrderItems
 (
-    id       INT AUTO_INCREMENT PRIMARY KEY,
-    book_id  INT,
-    number   INT,
-    order_id INT,
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    book_id    INT,
+    number     INT,
+    order_id   INT,
+    book_price INT,
     CONSTRAINT fk_orderItem_book_id
         FOREIGN KEY (book_id) REFERENCES books (id)
             ON DELETE CASCADE

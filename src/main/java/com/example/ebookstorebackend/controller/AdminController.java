@@ -1,6 +1,6 @@
 package com.example.ebookstorebackend.controller;
 
-import com.example.ebookstorebackend.dto.AdminDTO;
+import com.example.ebookstorebackend.dto.AnalysisDTO;
 import com.example.ebookstorebackend.dto.CommonResponse;
 import com.example.ebookstorebackend.entity.BookEntity;
 import com.example.ebookstorebackend.entity.OrderEntity;
@@ -9,7 +9,6 @@ import com.example.ebookstorebackend.entity.UserEntity;
 import com.example.ebookstorebackend.service.BookService;
 import com.example.ebookstorebackend.service.OrderService;
 import com.example.ebookstorebackend.service.UserService;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,51 +57,31 @@ public class AdminController {
     }
 
     @GetMapping("/api/admin/analysis/users")
-    public List<AdminDTO.UserAnalysis> getUserAnalysis(@RequestParam(required = false) String start,
-                                                       @RequestParam(required = false) String end,
-                                                       @RequestParam(name = "keyword") String user_keyword) {
+    public List<AnalysisDTO.UserAnalysis> getUserAnalysis(@RequestParam(required = false) String start,
+                                                          @RequestParam(required = false) String end,
+                                                          @RequestParam(name = "keyword") String user_keyword) {
+        System.out.println("start: " + start + ", end: " + end + ", keyword: " + user_keyword);
         List<UserEntity> allUsers = userService.searchUsers(user_keyword);
         return new ArrayList<>(allUsers.stream().map(user ->
-                new AdminDTO.UserAnalysis(calculateUserTotalCost(user, start, end), user)
-        ).sorted(Comparator.comparingInt(AdminDTO.UserAnalysis::getTotalcost).reversed()).toList()); // 降序排序
+                new AnalysisDTO.UserAnalysis(calculateUserTotalCost(user, start, end), user)
+        ).sorted(Comparator.comparingInt(AnalysisDTO.UserAnalysis::getTotalcost).reversed()).toList()); // 降序排序
     }
 
-    public static class BookAnalysis {
-        public BookEntity book;
-        @JsonProperty("total_sales")
-        public int totalSales;
-        @JsonProperty("total_price")
-        public int totalPrice;
-
-        public BookAnalysis(BookEntity book, int totalSales, int totalPrice) {
-            this.book = book;
-            this.totalSales = totalSales;
-            this.totalPrice = totalPrice;
-        }
-    }
 
     @GetMapping("/api/admin/analysis/books")
-    public List<BookAnalysis> getBookAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword) {
+    public List<AnalysisDTO.BookAnalysis> getBookAnalysis(@RequestParam(required = false) String start, @RequestParam(required = false) String end, @RequestParam String keyword) {
         if (!isValidRange(start, end))
             return new ArrayList<>();
         List<OrderEntity> orders = orderService.searchOrdersByTimeRange(start, end, keyword);
         // analysis for each book in different orders
         Stream<OrderItemEntity> allItemsStream = orders.stream().flatMap(order -> order.getOrderItems().stream());
-        class SaleAndPrice {
-            public final int sale;
-            public final int price;
 
-            public SaleAndPrice(int sale, int price) {
-                this.sale = sale;
-                this.price = price;
-            }
-        }
-        Map<BookEntity, SaleAndPrice> bookStats = allItemsStream.collect(Collectors.groupingBy(OrderItemEntity::getBook,
-                Collectors.collectingAndThen(Collectors.toList(), items -> new SaleAndPrice(
+        Map<BookEntity, AnalysisDTO.SaleAndPrice> bookStats = allItemsStream.collect(Collectors.groupingBy(OrderItemEntity::getBook,
+                Collectors.collectingAndThen(Collectors.toList(), items -> new AnalysisDTO.SaleAndPrice(
                         items.stream().mapToInt(OrderItemEntity::getQuantity).sum(),
                         items.stream().mapToInt(OrderItemEntity::getCost).sum()
                 ))));
-        return bookStats.entrySet().stream().map(entry -> new BookAnalysis(entry.getKey(), entry.getValue().sale, entry.getValue().price)).toList();
+        return bookStats.entrySet().stream().map(entry -> new AnalysisDTO.BookAnalysis(entry.getKey(), entry.getValue().getSale(), entry.getValue().getPrice())).toList();
     }
 
     @PostMapping("/api/admin/book")

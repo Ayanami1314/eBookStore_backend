@@ -26,6 +26,7 @@ public class BookEntity {
     private String cover; // 图像资源的url
     private int sales;
     private String isbn;
+    private int storage; // 库存
 
     // 不允许book更新时更新原有的订单，订单的价格始终应该是“当时的”书籍价格
 //    // HINT: 一个book对应多个orderItem，级联删除，更新，刷新，懒加载
@@ -36,5 +37,4 @@ public class BookEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItemEntity> cartItems;
-
 }

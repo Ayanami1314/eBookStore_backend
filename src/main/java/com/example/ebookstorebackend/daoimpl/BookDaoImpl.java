@@ -1,5 +1,6 @@
-package com.example.ebookstorebackend.dao;
+package com.example.ebookstorebackend.daoimpl;
 
+import com.example.ebookstorebackend.dao.BookDao;
 import com.example.ebookstorebackend.dto.BookDTO;
 import com.example.ebookstorebackend.entity.BookEntity;
 import com.example.ebookstorebackend.repo.BookRepo;
@@ -67,6 +68,17 @@ public class BookDaoImpl implements BookDao {
         Sort bookSort = Sort.by(Sort.Direction.fromString(direction), sortBy);
         Pageable pageable = PageRequest.of(pageNo, size, bookSort);
         return mysqldb.findAll(pageable);
+    }
+
+    @Override
+    public void reduceStock(Long id, int quantity) {
+        BookEntity book = mysqldb.findById(id).orElse(null);
+        if (book == null) {
+            System.out.println("book is null:" + id);
+            return;
+        }
+        book.setStorage(book.getStorage() - quantity);
+        mysqldb.save(book);
     }
 
 }

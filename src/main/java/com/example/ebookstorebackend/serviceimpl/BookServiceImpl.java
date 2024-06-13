@@ -1,8 +1,9 @@
-package com.example.ebookstorebackend.service;
+package com.example.ebookstorebackend.serviceimpl;
 
 import com.example.ebookstorebackend.dao.BookDao;
 import com.example.ebookstorebackend.dto.BookDTO;
 import com.example.ebookstorebackend.entity.BookEntity;
+import com.example.ebookstorebackend.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -43,4 +44,8 @@ public class BookServiceImpl implements BookService {
         return bookDao.sortedBooks(sortBy, direction, pageNo, size);
     }
 
+    @Override
+    public void reduceStock(Long id, int quantity) {
+        bookDao.reduceStock(id, quantity);
+    }
 }

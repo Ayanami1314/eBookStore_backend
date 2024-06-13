@@ -1,5 +1,6 @@
-package com.example.ebookstorebackend.dao;
+package com.example.ebookstorebackend.daoimpl;
 
+import com.example.ebookstorebackend.dao.OrderDao;
 import com.example.ebookstorebackend.entity.BookEntity;
 import com.example.ebookstorebackend.entity.OrderEntity;
 import com.example.ebookstorebackend.entity.OrderItemEntity;

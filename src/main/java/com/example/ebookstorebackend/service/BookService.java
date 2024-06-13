@@ -16,4 +16,6 @@ public interface BookService {
     void removeBook(Long id);
 
     Page<BookEntity> sortedBooks(String sortBy, String direction, int pageNo, int size);
+
+    void reduceStock(Long id, int quantity);
 }

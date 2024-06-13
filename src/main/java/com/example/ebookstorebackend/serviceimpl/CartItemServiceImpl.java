@@ -1,9 +1,10 @@
-package com.example.ebookstorebackend.service;
+package com.example.ebookstorebackend.serviceimpl;
 
 
 import com.example.ebookstorebackend.dao.CartItemDao;
 import com.example.ebookstorebackend.entity.CartItemEntity;
 import com.example.ebookstorebackend.entity.OrderItemEntity;
+import com.example.ebookstorebackend.service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,5 +1,6 @@
-package com.example.ebookstorebackend.dao;
+package com.example.ebookstorebackend.daoimpl;
 
+import com.example.ebookstorebackend.dao.UserDao;
 import com.example.ebookstorebackend.entity.UserAuthEntity;
 import com.example.ebookstorebackend.entity.UserEntity;
 import com.example.ebookstorebackend.exception.UserNotFoundException;

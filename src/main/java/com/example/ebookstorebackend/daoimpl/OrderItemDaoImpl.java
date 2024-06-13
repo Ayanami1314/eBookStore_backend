@@ -1,5 +1,6 @@
-package com.example.ebookstorebackend.dao;
+package com.example.ebookstorebackend.daoimpl;
 
+import com.example.ebookstorebackend.dao.OrderItemDao;
 import com.example.ebookstorebackend.entity.OrderItemEntity;
 import com.example.ebookstorebackend.repo.OrderItemRepo;
 import org.springframework.beans.factory.annotation.Autowired;

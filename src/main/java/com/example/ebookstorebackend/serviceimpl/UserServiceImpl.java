@@ -1,10 +1,11 @@
-package com.example.ebookstorebackend.service;
+package com.example.ebookstorebackend.serviceimpl;
 
 import com.example.ebookstorebackend.dao.UserDao;
 import com.example.ebookstorebackend.dto.CommonResponse;
 import com.example.ebookstorebackend.dto.UserDTO;
 import com.example.ebookstorebackend.entity.UserAuthEntity;
 import com.example.ebookstorebackend.entity.UserEntity;
+import com.example.ebookstorebackend.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

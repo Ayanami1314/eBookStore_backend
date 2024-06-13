@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS Books
     isbn        CHAR(17)     NOT NULL, # 13位isbn 5部分 == 4 '-'
     description TEXT         NOT NULL,
     sales       INT          NOT NULL DEFAULT 0,
-    cover       VARCHAR(255) NOT NULL
+    cover       VARCHAR(255) NOT NULL,
+    storage     INT          NOT NULL DEFAULT 0
 );
 
 
